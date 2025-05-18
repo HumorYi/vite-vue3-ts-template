@@ -17,7 +17,7 @@ function getReqKey(config: AxiosRequestConfig) {
 export const reqQueue = new Map()
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function handleReqRepeat(config: any) {
+export function reqRepeat(config: any) {
   // 超时重试
   if (config._reqKey) return
 
@@ -41,6 +41,6 @@ export function handleReqRepeat(config: any) {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function handleReqRepeatByRes(config: any) {
+export function reqRepeatByRes(config: any) {
   reqQueue.delete(config._reqKey)
 }

@@ -1,15 +1,13 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
+import type { RouteRecordRaw } from 'vue-router'
 
-import {
-  getUser as getUserApi,
-  login as loginApi,
-  logout as logoutApi,
-  setUser as setUserApi
-} from '@/api/user'
 import { useAuth } from '@/composables/useAuth'
 import { ROUTER_PERMISSION_TYPE, RouterPermission } from '@/config/router'
 import permission from '@/router/routes/permission'
 import type { User } from '@/types/api'
+
+import { apiGetUser, apiLogin, apiLogout, apiSetUser } from '@/api/user'
+
 import {
   hasRoutePermission as hasRoutePermissionUtil,
   resetRoutePermission,
@@ -17,7 +15,6 @@ import {
   setRoutePermissionByDynamic,
   setRoutePermissionByRole
 } from '@/utils/route'
-import type { RouteRecordRaw } from 'vue-router'
 
 export const useUserStore = defineStore(
   'user',
@@ -29,7 +26,7 @@ export const useUserStore = defineStore(
 
     async function login() {
       try {
-        const data = await loginApi({ name: 'xxx' })
+        const data = await apiLogin({ name: 'xxx' })
 
         auth.setToken(data.token)
 
@@ -43,7 +40,7 @@ export const useUserStore = defineStore(
 
     async function logout() {
       try {
-        await logoutApi()
+        await apiLogout()
 
         resetRoutePermission(permission)
 
@@ -57,7 +54,7 @@ export const useUserStore = defineStore(
       if (!auth.hasToken()) return
 
       try {
-        const data = await getUserApi({ name: 'haha' })
+        const data = await apiGetUser({ name: 'haha' })
 
         user.value = data
 
@@ -91,7 +88,7 @@ export const useUserStore = defineStore(
     }
 
     async function setUser() {
-      await setUserApi({ name: 'ha' })
+      await apiSetUser({ name: 'ha' })
     }
 
     function hasRoutePermission(name: string) {
@@ -109,10 +106,12 @@ export const useUserStore = defineStore(
       hasRoutePermission
     }
   }
+  // ,
   // {
   //   persist: {
   //     enabled: true,
-  //     strategies: [{ storage: localStorage, paths: [] }]
+  //     // 注意：目前测试，只有响应式的值 并且 return 出去 才会存储
+  //     strategies: [{ storage: localStorage, paths: ['user'] }]
   //   }
   // }
 )

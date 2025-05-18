@@ -1,14 +1,16 @@
-# Vue3 + TS + Vite 项目模板
+# Vite + Vue3 + TS 项目模板
 
 ## 处理事项
 
 - 项目规范
+
   - stylelint（样式规范）若使用 VsCode，需安装 Stylelint 插件
   - eslint（脚本规范）若使用 VsCode，需安装 ESLint 插件
   - prettier（格式化规范）若使用 VsCode，需安装 Prettier - Code formatter 插件
   - commitlint（git 提交规范）
 
 - Vite
+
   - 基础配置：路径映射、请求代理、注入样式全局变量等
   - [UnoCss](https://unocss.dev/guide/) ，可直接使用内部基础样式，亦可依据项目需求组装等
   - API 自动按需导入，不用再频繁导入依赖包 API，提升开发效率
@@ -122,44 +124,56 @@
 
 ## 目录结构
 
-├── .env // 公共环境变量
-├── .env.development // 开发环境变量
-├── .env.production // 生产环境变量
-├── .gitignore // git 提交忽略文件
-├── .husky  // git hook钩子
-├── .prettierignore // prettier 忽略文件
-├── commitlint.config.js // commitlint 配置
-├── eslint.config.js // eslint 配置
-├── index.html // 入口 html
-├── package-lock.json // 包配置，锁定依赖版本
-├── package.json // 包配置
-├── prettier.config.js // prettier 配置
-├── public // 静态资源
-├── README.md // 先看此文件，便于了解项目设计思路
-├── src // 源码
-│   ├── api // api 请求
+```text
+├── .env                                      公共环境变量
+├── .env.development                          开发环境变量
+├── .env.production                           生产环境变量
+├── .gitignore                                git 提交忽略文件
+├── .husky                                    git hook钩子
+├── .prettierignore                           prettier 忽略文件
+├── commitlint.config.js                      commitlint 配置
+├── eslint.config.js                          eslint 配置
+├── index.html                                入口 html
+├── package-lock.json                         包配置，锁定依赖版本
+├── package.json                              包配置
+├── prettier.config.js                        prettier 配置
+├── public                                    静态资源
+├── README.md                                 先看此文件，便于了解项目设计思路
+├── src                                       源码
+│   ├── api                                   api 请求
 │   │   ├── common.ts
 │   │   └── user.ts
-│   ├── App.vue // 入口组件
-│   ├── assets // 资源
+│   ├── App.vue                               入口组件
+│   ├── assets                                资源
 │   │   └── images
 │   │       ├── error-page
 │   │       │   ├── 403.png
 │   │       │   ├── 404.png
 │   │       │   └── 500.png
+│   │   │   ├── lazyload
+│   │   │   │   ├── error.jpg
+│   │   │   │   └── loading.gif
 │   │       └── loading
 │   │           └── loading.gif
-│   ├── components // 全局组件
-│   │   ├── common // 公共组件
-│   │   │   └── RouterLinkPermission.vue // 权限 router-link，有权限则显示
-│   │   ├── layouts // 布局组件
-│   │   └── modules // 业务组件
-│   ├── composables // composition 函数
+│   │   └── styles                            样式表
+│   │       ├── base.scss
+│   │       ├── common.scss
+│   │       ├── index.scss
+│   │       ├── loading.scss
+│   │       ├── mixins
+│   │       │   └── index.scss
+│   │       └── variables.scss
+│   ├── components                            全局组件
+│   │   ├── common                            公共组件
+│   │   │   └── RouterLinkPermission.vue      权限 router-link，有权限则显示
+│   │   ├── layouts                           布局组件
+│   │   └── modules                           业务组件
+│   ├── composables                           composition 函数
 │   │   └── useAuth.ts
-│   ├── config // 自定义配置
+│   ├── config                                自定义配置
 │   │   ├── router.ts
 │   │   └── user.ts
-│   ├── directives // 全局指令
+│   ├── directives                            全局指令
 │   │   ├── index.ts
 │   │   └── modules
 │   │       ├── copy.ts
@@ -170,73 +184,72 @@
 │   │       ├── typewriter.ts
 │   │       ├── validate.ts
 │   │       └── waterMarker.ts
-│   ├── dts // ts 声明文件
+│   ├── dts                                   ts 声明文件
 │   │   ├── auto-imports.d.ts
 │   │   ├── components.d.ts
 │   │   ├── pinia-plugin-persist.d.ts
 │   │   └── vite-env.d.ts
-│   ├── http // http 请求，使用 axios
-│   │   ├── factory // 工厂函数
-│   │   │   ├── download.ts // 文件下载
-│   │   │   ├── index.ts // 入口文件
-│   │   │   ├── loading // loading 目录
-│   │   │   │   ├── counter.ts // 计数器
-│   │   │   │   ├── loading.ts // loading 处理
-│   │   │   │   └── timer.ts // 定时器
-│   │   │   ├── req-config.ts // 请求配置，请求前处理配置，例如：根据不同请求方法转换参数
-│   │   │   ├── req-repeat.ts // 请求重复
-│   │   │   ├── res-code.ts // 响应状态码处理
-│   │   │   └── res-timeout.ts // 响应超时
+│   ├── http                                  http 请求，使用 axios
+│   │   ├── factory                           工厂函数
+│   │   │   ├── index.ts                      入口文件
+│   │   │   ├── loading                       loading 目录
+│   │   │   │   ├── counter.ts                计数器
+│   │   │   │   ├── loading.ts                loading 处理
+│   │   │   │   └── timer.ts                  定时器
+│   │   │   ├── req-config.ts                 请求配置，请求前处理配置，例如：根据不同请求方法转换参数
+│   │   │   ├── req-repeat.ts                 请求重复
+│   │   │   ├── res-code.ts                   响应状态码处理
+│   │   │   ├── res-download.ts               响应文件下载
+│   │   │   └── res-timeout.ts                响应超时
 │   │   └── index.ts
-│   ├── main.ts // 入口文件
-│   ├── plugins // 插件
+│   ├── main.ts                               入口文件
+│   ├── plugins                               插件
 │   │   └── custom-vite-restart.ts
-│   ├── router // 路由器
-│   │   ├── index.ts // 路由器入口
-│   │   └── routes // 路由表
-│   │       ├── base.ts // 基础路由，不需要权限
-│   │       ├── error.ts // 错误路由
-│   │       ├── index.ts // 路由表入口
-│   │       └── permission.ts // 权限路由，需要权限
-│   ├── store // pinia store
-│   │   └── useUserStore.ts // 用户 store
-│   ├── styles // 样式表
-│   │   ├── base.scss
-│   │   ├── index.scss
-│   │   ├── loading.scss
-│   │   └── variables.scss
-│   ├── types // 类型定义
+│   ├── router                                路由器
+│   │   ├── index.ts                          路由器入口
+│   │   └── routes                            路由表
+│   │       ├── base.ts                       基础路由，不需要权限
+│   │       ├── error.ts                      错误路由
+│   │       ├── index.ts                      路由表入口
+│   │       └── permission.ts                 权限路由，需要权限
+│   ├── store                                 pinia store
+│   │   └── useUserStore.ts                   用户 store
+│   ├── types                                 类型定义
 │   │   ├── api.ts
 │   │   ├── http.ts
 │   │   └── json.ts
-│   ├── uno // 自定义 uno 配置
-│   │   ├── presets // 自定义 预设
+│   ├── uno                                   自定义 uno 配置
+│   │   ├── presets                           自定义 预设
 │   │   │   ├── bg.ts
 │   │   │   ├── color.ts
 │   │   │   └── index.ts
-│   │   └── shortcuts // 自定义 快捷类
+│   │   └── shortcuts                         自定义 快捷类
 │   │       ├── box.ts
 │   │       ├── flex.ts
 │   │       ├── index.ts
 │   │       └── position.ts
-│   ├── utils // 工具库
+│   ├── utils                                 工具库
 │   │   ├── base.ts
 │   │   ├── dom.ts
+│   │   ├── envs
+│   │   │   ├── dev.ts
+│   │   │   ├── index.ts
+│   │   │   └── prod.ts
 │   │   ├── file.ts
 │   │   ├── resource.ts
 │   │   └── route.ts
-│   └── views // 页面目录
-│       ├── error // 错误页（测试）
+│   └── views                                 页面目录
+│       ├── error                             错误页（测试）
 │       │   ├── 403.vue
 │       │   ├── 404.vue
 │       │   ├── 500.vue
 │       │   └── Index.vue
-│       ├── home // 首页（测试：权限路由）
+│       ├── home                              首页（测试：权限路由）
 │       │   └── Index.vue
-│       ├── login // 登录页（测试）
+│       ├── login                             登录页（测试）
 │       │   └── Index.vue
-│       ├── settings // 设置页（测试：权限路由）
-│       │   ├── Advance // 嵌套页（测试：嵌套路由）
+│       ├── settings                          设置页（测试：权限路由）
+│       │   ├── Advance                       嵌套页（测试：嵌套路由）
 │       │   │   ├── Base.vue
 │       │   │   ├── Home.vue
 │       │   │   ├── Index.vue
@@ -244,14 +257,15 @@
 │       │   ├── Base.vue
 │       │   ├── Home.vue
 │       │   └── Index.vue
-│       └── user // 设置页（测试：权限路由）
+│       └── user                              设置页（测试：权限路由）
 │           ├── Advance.vue
 │           ├── Base.vue
 │           ├── Home.vue
 │           └── Index.vue
-├── stylelint.config.js // stylelint 配置
-├── tsconfig.app.json  // vite 在 app 环境中的 ts 规则
-├── tsconfig.json      // ts 配置
-├── tsconfig.node.json // vite 在 node 环境中的 ts 规则
-├── uno.config.ts      // uno 配置
-└── vite.config.ts     // vite 配置
+├── stylelint.config.js                       stylelint 配置
+├── tsconfig.app.json                         vite 在 app 环境中的 ts 规则
+├── tsconfig.json                             ts 配置
+├── tsconfig.node.json                        vite 在 node 环境中的 ts 规则
+├── uno.config.ts                             uno 配置
+└── vite.config.ts                            vite 配置
+```

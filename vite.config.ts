@@ -12,6 +12,7 @@ import { type ConfigEnv, type UserConfig, defineConfig, loadEnv } from 'vite'
 
 /* 增强开发体验 S */
 import vue from '@vitejs/plugin-vue'
+import autoprefixer from 'autoprefixer'
 import UnoCSS from 'unocss/vite'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
@@ -102,6 +103,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
     },
     plugins,
     server: {
+      host: '0.0.0.0',
       port: 8080,
       open: false,
       proxy: {
@@ -114,11 +116,27 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       }
     },
     css: {
+      postcss: {
+        plugins: [
+          autoprefixer({
+            // 自动添加前缀
+            overrideBrowserslist: [
+              'Android 4.1',
+              'iOS 7.1',
+              'Chrome > 31',
+              'ff > 31',
+              'ie >= 8'
+              //'last 2 versions', // 所有主流浏览器最近2个版本
+            ]
+          })
+        ]
+      },
       preprocessorOptions: {
         scss: {
           api: 'modern-compiler',
           additionalData: `
-            @use "@/styles/variables.scss" as *;
+            @use "@/assets/styles/variables.scss" as variables;
+            @use "@/assets/styles/mixins/index.scss" as mixins;
           `
         }
       },
@@ -129,7 +147,9 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       manifest: isProd,
       minify: isProd ? 'terser' : 'esbuild',
       cssMinify: 'lightningcss',
-      terserOptions: { compress: { drop_console: true, drop_debugger: true } },
+      terserOptions: {
+        compress: { drop_console: isProd, drop_debugger: isProd }
+      },
       // 使用 rollup 将会 替代 assetsDir，需手动指定目录
       rollupOptions: {
         output: {

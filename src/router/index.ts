@@ -26,7 +26,7 @@ const router = createRouter({
   history: createWebHistory(),
   routes,
   strict: false,
-  scrollBehavior: () => ({ left: 0, top: 0 })
+  scrollBehavior: (to, from, savedPosition) => savedPosition || { top: 0 }
 })
 
 // 全局前置守卫

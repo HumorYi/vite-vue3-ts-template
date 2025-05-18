@@ -1,22 +1,31 @@
 import { createPinia } from 'pinia'
 import piniaPluginPersist from 'pinia-plugin-persist'
+import VueLazyLoad from 'vue3-lazyload'
 
 import App from './App.vue'
 import directives from './directives'
 import router from './router'
 
 import 'normalize.css'
-import 'reset.css'
 import 'virtual:uno.css'
+import './assets/styles/index.scss'
 
-import './styles/index.scss'
+import { initEnvs } from './utils/envs'
 
-const pinia = createPinia()
+import errorImg from '@/assets/images/lazyload/error.jpg'
+import loadingImg from '@/assets/images/lazyload/loading.gif'
+
 const app = createApp(App)
+const pinia = createPinia().use(piniaPluginPersist)
 
-pinia.use(piniaPluginPersist)
+initEnvs()
 
-app.use(pinia).use(router).use(directives).mount('#app')
+app
+  .use(VueLazyLoad, { loading: loadingImg, error: errorImg })
+  .use(pinia)
+  .use(router)
+  .use(directives)
+  .mount('#app')
 
 app.config.performance = true
 

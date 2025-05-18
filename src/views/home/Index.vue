@@ -78,7 +78,7 @@
 </template>
 
 <script lang="ts" setup name="Home">
-import { getFile } from '@/api/common'
+import { apiGetFile } from '@/api/common'
 import { RouteName } from '@/config/router'
 import { useUserStore } from '@/store/useUserStore'
 import { useRouter } from 'vue-router'
@@ -105,7 +105,7 @@ const toUser = () => router.push({ name: RouteName.user.root })
 const user = useUserStore()
 
 const download = async () => {
-  await getFile({
+  await apiGetFile({
     filename: 'test.txt'
   })
 

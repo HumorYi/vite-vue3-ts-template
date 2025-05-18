@@ -1,6 +1,6 @@
 import type { AxiosInstance } from 'axios'
 
-export async function resTimeoutRetry(
+export default async function resTimeout(
   instance: AxiosInstance,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   error: any,

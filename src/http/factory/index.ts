@@ -15,10 +15,10 @@ import type {
 } from '@/types/http'
 import { fifo } from '@/utils/base'
 import LoadingTimer from './loading/timer'
-import { handleReqRepeat, handleReqRepeatByRes } from './req-repeat'
+import { reqRepeat, reqRepeatByRes } from './req-repeat'
 import { handleResCode, ResCode } from './res-code'
-import { resTimeoutRetry } from './res-timeout'
-import download from './download'
+import resDownload from './res-download'
+import resTimeout from './res-timeout'
 
 /**
  * 注意：
@@ -37,7 +37,7 @@ function handleInterceptReq(instance: AxiosInstance, option?: ReqOption) {
     (config: InternalAxiosRequestConfig) => {
       // console.log('req config', config)
 
-      handleReqRepeat(config)
+      reqRepeat(config)
 
       // 有些第三方 api 需要做另外处理
       if (option?.handleReqConfig) option.handleReqConfig(config)
@@ -47,7 +47,7 @@ function handleInterceptReq(instance: AxiosInstance, option?: ReqOption) {
     error => {
       console.error('请求错误:', error)
 
-      handleReqRepeatByRes(error.config)
+      reqRepeatByRes(error.config)
 
       loadingTimer.stop()
 
@@ -61,7 +61,7 @@ function handleInterceptRes(instance: AxiosInstance, option?: ResOption) {
     (response: AxiosResponse) => {
       // console.log('response', response)
 
-      handleReqRepeatByRes(response.config)
+      reqRepeatByRes(response.config)
 
       loadingTimer.stop()
 
@@ -75,10 +75,10 @@ function handleInterceptRes(instance: AxiosInstance, option?: ResOption) {
       //   return Promise.reject(error)
       // }
 
-      if (error?.config) handleReqRepeatByRes(error.config)
+      if (error?.config) reqRepeatByRes(error.config)
 
       if (error?.message?.includes('timeout')) {
-        return resTimeoutRetry(
+        return resTimeout(
           instance,
           error,
           option?.timeoutRetryMax,
@@ -110,7 +110,7 @@ async function handleReq<T>(
     if (isDownload) {
       const res = await instance<BlobPart>(config)
 
-      download(res)
+      resDownload(res)
     } else {
       const { data } = await instance<ApiResult<T>>(config)
 
