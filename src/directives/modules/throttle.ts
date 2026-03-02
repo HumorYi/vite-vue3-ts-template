@@ -10,7 +10,7 @@ interface ElType extends HTMLElement {
 
 const throttle: Directive = {
   mounted(el: ElType, { value, arg }: DirectiveBinding) {
-    el._throttle = lodashThrottle(value, arg ? Number(arg) : 1000)
+    el._throttle = lodashThrottle(value, arg ? Number(arg) : 300)
 
     el.addEventListener('click', el._throttle)
   },

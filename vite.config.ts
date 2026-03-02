@@ -21,8 +21,8 @@ import ViteRestart from 'vite-plugin-restart'
 
 /** 打包优化 S */
 import { analyzer } from 'vite-bundle-analyzer'
-import viteCompression from 'vite-plugin-compression'
-import viteImagemin from 'vite-plugin-imagemin'
+import { ViteImageOptimizer } from 'vite-plugin-image-optimizer'
+import compression from 'vite-plugin-compression'
 /** 打包优化 E */
 
 /* 插件 E */
@@ -75,19 +75,25 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
   ]
 
   const prodPlugins = [
-    viteCompression({ threshold: 10240 }),
-    viteImagemin({
-      gifsicle: { optimizationLevel: 7, interlaced: false },
-      optipng: { optimizationLevel: 7 },
-      mozjpeg: { quality: 20 },
-      pngquant: { quality: [0.8, 0.9], speed: 4 },
-      svgo: {
-        plugins: [
-          { name: 'removeViewBox' },
-          { name: 'removeEmptyAttrs', active: false }
-        ]
-      }
-    })
+    ViteImageOptimizer({
+      png: { quality: 60 },
+      jpg: { quality: 70 },
+      jpeg: { quality: 70 },
+      webp: { quality: 70, lossless: false },
+      avif: { quality: 70 },
+      exclude: ['**/logo.svg']
+    }),
+    /*
+    # 示例 Nginx 配置（优先返回 brotli，再返回 gzip，最后返回原始文件）
+    # 开启 gzip 静态压缩包识别
+    gzip_static on;
+    # 开启 brotli 静态压缩包识别（需 Nginx 安装 brotli 模块）
+    brotli_static on;
+    # 设置响应头，告诉浏览器支持的压缩格式
+    add_header Content-Encoding gzip always;
+    */
+    compression({ algorithm: 'gzip', ext: '.gz', threshold: 10240 }),
+    compression({ algorithm: 'brotliCompress', ext: '.br', threshold: 10240 })
   ]
 
   if (isDev) plugins.push(...devPlugins)
@@ -106,13 +112,19 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       host: '0.0.0.0',
       port: 8080,
       open: false,
+      cors: true,
       proxy: {
         [env.VITE_APP_BASE_API]: {
           changeOrigin: true,
           target: env.VITE_APP_API_URL,
           rewrite: (path: string) =>
             path.replace(new RegExp('^' + env.VITE_APP_BASE_API), '')
+          // secure: false, // https接口需配置
+          // ws: true, // 支持 websocket
         }
+      },
+      hmr: {
+        overlay: false // 关闭热更新错误浮层（避免干扰开发）
       }
     },
     css: {
@@ -143,23 +155,27 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       modules: { localsConvention: 'camelCase' }
     },
     build: {
-      sourcemap: isProd,
-      manifest: isProd,
-      minify: isProd ? 'terser' : 'esbuild',
+      sourcemap: true,
+      manifest: true,
+      minify: 'terser',
       cssMinify: 'lightningcss',
       terserOptions: {
-        compress: { drop_console: isProd, drop_debugger: isProd }
+        compress: { drop_console: true, drop_debugger: true },
+        format: { comments: false }
       },
-      // 使用 rollup 将会 替代 assetsDir，需手动指定目录
+      // 分包核心配置，使用 rollup 将会 替代 assetsDir，需手动指定目录
       rollupOptions: {
         output: {
           entryFileNames: 'js/[name]-[hash].js',
           chunkFileNames: 'js/[name]-[hash].js',
-          assetFileNames: '[ext]/[name]-[hash][extname]'
+          assetFileNames: '[ext]/[name]-[hash].[ext]'
         }
       }
     },
     define: { __APP_INFO__: JSON.stringify(__APP_INFO__) },
-    optimizeDeps: { include: ['vue', 'lodash-es'] }
+    // 优化依赖预构建（提升冷启动速度）
+    optimizeDeps: {
+      include: ['vue', 'vue-router', 'pinia', 'axios', 'lodash-es']
+    }
   }
 })

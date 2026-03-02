@@ -8,6 +8,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    ImageWebp: typeof import('./../components/common/ImageWebp.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterLinkPermission: typeof import('./../components/common/RouterLinkPermission.vue')['default']
     RouterView: typeof import('vue-router')['RouterView']

@@ -8,7 +8,7 @@ interface ElType extends HTMLElement {
 
 const debounce: Directive = {
   mounted(el: ElType, { value, arg }: DirectiveBinding) {
-    el._debounce = lodashDebounce(value, arg ? Number(arg) : 1000)
+    el._debounce = lodashDebounce(value, arg ? Number(arg) : 300)
 
     el.addEventListener('click', el._debounce)
   },

@@ -9,7 +9,7 @@ const routes: RouteRecordRaw[] = [
     meta: {
       title: '首页',
       // 是否需要身份验证，即用户信息
-      auth: true
+      auth: false
     }
   },
   {
