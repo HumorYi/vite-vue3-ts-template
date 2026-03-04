@@ -1,10 +1,17 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import type { RouteRecordRaw } from 'vue-router'
+import {
+  type RouteRecordRaw,
+  type RouteLocationAsRelativeGeneric
+} from 'vue-router'
 
-import { useAuth } from '@/composables/useAuth'
-import { ROUTER_PERMISSION_TYPE, RouterPermission } from '@/config/router'
+import {
+  ROUTER_PERMISSION_TYPE,
+  RouteName,
+  RouterPermission
+} from '@/config/router'
+import router from '@/router'
 import permission from '@/router/routes/permission'
-import type { User } from '@/types/api'
+import { type User } from '@/types/api'
 
 import { apiGetUser, apiLogin, apiLogout, apiSetUser } from '@/api/user'
 
@@ -16,104 +23,110 @@ import {
   setRoutePermissionByRole
 } from '@/utils/route'
 
-export const useUserStore = defineStore(
-  'user',
-  () => {
-    const auth = useAuth()
-    const user = ref<User | null>(null)
-    // 有 token 不能认为已经登录，可能 token 失效，所以要先验证 token
-    const isLogin = computed(() => Boolean(user.value))
-
-    async function login() {
+export const useUserStore = defineStore('user', {
+  state: () => ({
+    token: localStorage.getItem('token') || '',
+    user: null as User | null,
+    isLogin: false
+  }),
+  actions: {
+    async login() {
       try {
-        const data = await apiLogin({ name: 'xxx' })
+        const tokenData = await apiLogin({ name: 'xxx' })
 
-        auth.setToken(data.token)
+        this.token = tokenData.token
 
-        await getUser()
+        const { name, query } = router.currentRoute.value
 
-        auth.login()
+        if (name === RouteName.home) return
+
+        router.replace(
+          (query.redirect as RouteLocationAsRelativeGeneric) || {
+            name: RouteName.home
+          }
+        )
       } catch (error) {
         throw error
       }
-    }
-
-    async function logout() {
+    },
+    async logout() {
       try {
         await apiLogout()
 
         resetRoutePermission(permission)
 
-        auth.logout()
+        this.token = ''
+        this.user = null
       } catch (error) {
         throw error
       }
-    }
+    },
+    async getUser() {
+      if (!this.token) return
 
-    async function getUser() {
-      if (!auth.hasToken()) return
+      if (!this.user) {
+        try {
+          const userData = await apiGetUser({ name: 'haha' })
 
-      try {
-        const data = await apiGetUser({ name: 'haha' })
+          this.user = userData
 
-        user.value = data
+          this.isLogin = true
 
-        setRoutePermission()
-      } catch (error) {
-        throw error
+          switch (ROUTER_PERMISSION_TYPE) {
+            case RouterPermission.DYNAMIC.valueOf():
+              setRoutePermissionByDynamic(
+                permission,
+                this.user?.routes as unknown as RouteRecordRaw[]
+              )
+              break
+
+            case RouterPermission.ROLE.valueOf():
+              setRoutePermissionByRole(permission, this.user?.role as string)
+              break
+
+            case RouterPermission.AUTH.valueOf():
+              setRoutePermissionByAuth(permission)
+              break
+
+            default:
+              break
+          }
+        } catch (error) {
+          throw error
+        }
       }
-    }
 
-    function setRoutePermission() {
-      switch (ROUTER_PERMISSION_TYPE) {
-        case RouterPermission.DYNAMIC.valueOf():
-          setRoutePermissionByDynamic(
-            permission,
-            user.value?.routes as unknown as RouteRecordRaw[]
-          )
+      return this.user
+    },
+    async setUser(param: Record<string, any>) {
+      const res = await apiSetUser(param)
 
-          break
-        case RouterPermission.ROLE.valueOf():
-          setRoutePermissionByRole(permission, user.value?.role as string)
-
-          break
-        case RouterPermission.AUTH.valueOf():
-          setRoutePermissionByAuth(permission)
-
-          break
-
-        default:
-          break
+      if (res.success) {
+        this.user = res.data as User
       }
-    }
+    },
+    hasRoutePermission(name: string) {
+      return this.isLogin && hasRoutePermissionUtil(permission, name)
+    },
+    toLogin() {
+      const { name, fullPath } = router.currentRoute.value
 
-    async function setUser() {
-      await apiSetUser({ name: 'ha' })
-    }
+      this.token = ''
 
-    function hasRoutePermission(name: string) {
-      return isLogin.value && hasRoutePermissionUtil(permission, name)
-    }
+      if (name === RouteName.login) return
 
-    return {
-      toLogin: auth.toLogin,
-      isLogin,
-      login,
-      logout,
-      user,
-      getUser,
-      setUser,
-      hasRoutePermission
+      router.push({
+        name: RouteName.login,
+        query: { redirect: fullPath }
+      })
     }
+  },
+  persist: {
+    storage: localStorage,
+    pick: ['token']
   }
-  // ,
-  // {
-  //   persist: {
-  //     enabled: true,
-  //     // 注意：目前测试，只有响应式的值 并且 return 出去 才会存储
-  //     strategies: [{ storage: localStorage, paths: ['user'] }]
-  //   }
-  // }
-)
+})
 
-import.meta.hot?.accept(acceptHMRUpdate(useUserStore, import.meta.hot))
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useUserStore, import.meta.hot))
+}

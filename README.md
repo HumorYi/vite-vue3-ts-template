@@ -16,7 +16,7 @@
   - API 自动按需导入，不用再频繁导入依赖包 API，提升开发效率
   - 组件 自动按需导入，不用再频繁导入依赖包 组件，提升开发效率
   - 开发环境优化：Vite 服务重启，引入相关配置文件，更改时自动重启，不用断开服务再手动重启，提升开发效率
-  - 生产环境优化：压缩图片、压缩文件
+  - 生产环境优化：cdn（不相互依赖异步并行，子依赖待父依赖加载完再加载，加载失败回退本地，入口文件最后加载）、压缩图片、压缩文件
   - 打包分析：查看打包后资源包是否打包、文件大小、文件拆分等
 
 - http 请求，使用 axios
@@ -169,7 +169,6 @@
 │   │   ├── layouts                           布局组件
 │   │   └── modules                           业务组件
 │   ├── composables                           composition 函数
-│   │   └── useAuth.ts
 │   ├── config                                自定义配置
 │   │   ├── router.ts
 │   │   └── user.ts
@@ -187,7 +186,7 @@
 │   ├── dts                                   ts 声明文件
 │   │   ├── auto-imports.d.ts
 │   │   ├── components.d.ts
-│   │   ├── pinia-plugin-persist.d.ts
+│   │   └── pinia.d.ts
 │   │   └── vite-env.d.ts
 │   ├── http                                  http 请求，使用 axios
 │   │   ├── factory                           工厂函数

@@ -7,7 +7,6 @@
  * 查看具体样式编译后的文件
  *    http://localhost:8080/__unocss#/
  */
-import presetRemToPx from "@unocss/preset-rem-to-px"
 import {
   defineConfig,
   presetAttributify,
@@ -38,7 +37,6 @@ export default defineConfig({
         // ...
       }
     }),
-    presetRemToPx({ baseFontSize: 4 }),
     ...customPresets
   ],
   transformers: [transformerDirectives(), transformerVariantGroup()],

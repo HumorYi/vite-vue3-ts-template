@@ -6,7 +6,7 @@
  */
 
 import type { JsonObject } from '@/types/json'
-import { capitalize } from 'lodash-es'
+import { capitalize } from 'lodash'
 
 export enum RouterPermission {
   // 动态路由 / 动态角色

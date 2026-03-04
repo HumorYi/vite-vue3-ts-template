@@ -105,7 +105,7 @@ const typewriter: Directive = {
       // 对随机的child执行run方法
       const random = Math.floor(Math.random() * children.length)
       const node = children[random]
-      const textNode = node.textContent
+      const textNode = node?.textContent
 
       if (textNode) run(node, textNode, runChildren)
     }

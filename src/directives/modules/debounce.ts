@@ -1,4 +1,4 @@
-import { debounce as lodashDebounce, type DebouncedFunc } from 'lodash-es'
+import { debounce as lodashDebounce, type DebouncedFunc } from 'lodash'
 import type { Directive } from 'vue'
 
 interface ElType extends HTMLElement {

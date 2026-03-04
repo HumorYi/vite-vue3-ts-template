@@ -1,5 +1,6 @@
+import { createApp } from 'vue'
 import { createPinia } from 'pinia'
-import piniaPluginPersist from 'pinia-plugin-persist'
+import { createPersistedState } from 'pinia-plugin-persistedstate';
 import VueLazyLoad from 'vue3-lazyload'
 
 import App from './App.vue'
@@ -16,7 +17,9 @@ import errorImg from '@/assets/images/lazyload/error.jpg'
 import loadingImg from '@/assets/images/lazyload/loading.gif'
 
 const app = createApp(App)
-const pinia = createPinia().use(piniaPluginPersist)
+const pinia = createPinia().use(createPersistedState({
+  key: id => `__persisted__${id}`,
+}))
 
 initEnvs()
 

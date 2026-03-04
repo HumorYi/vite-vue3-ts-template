@@ -13,6 +13,6 @@ export async function apiGetUser(params: object): Promise<User> {
   return await get('/user', params, { fifo: true })
 }
 
-export async function apiSetUser(params: object) {
+export async function apiSetUser(params: object): Promise<User> {
   return await post('/user', params, { fifo: true })
 }

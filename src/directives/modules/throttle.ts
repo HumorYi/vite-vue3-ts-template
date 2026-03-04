@@ -1,11 +1,10 @@
 import type { Directive } from 'vue'
 
-import type { DebouncedFuncLeading } from 'lodash'
-import { throttle as lodashThrottle } from 'lodash-es'
+import { throttle as lodashThrottle, type DebouncedFunc } from 'lodash'
 
 interface ElType extends HTMLElement {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  _throttle?: DebouncedFuncLeading<any>
+  _throttle?: DebouncedFunc<any>
 }
 
 const throttle: Directive = {

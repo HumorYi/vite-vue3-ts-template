@@ -1,7 +1,7 @@
 // v-copy="data"  默认复制成功后弹出提示
 // v-copy:silence="data" 不显示复制成功后的提示
 
-import { useClipboard } from '@vueuse/core'
+// import { useClipboard } from '@vueuse/core'
 import type { Directive } from 'vue'
 
 interface ElType extends HTMLElement {
@@ -13,7 +13,15 @@ const copy: Directive = {
   mounted(el: ElType, { value, modifiers }: DirectiveBinding) {
     el.copyData = value
 
-    const { copy } = useClipboard({ source: value })
+    // const { copy } = useClipboard({ source: value })
+    const copy = (text: string) => {
+      const input = document.createElement('input')
+      input.value = text
+      document.body.appendChild(input)
+      input.select()
+      document.execCommand('copy')
+      document.body.removeChild(input)
+    }
 
     el.__handleClick = () => {
       copy(el.copyData as string)

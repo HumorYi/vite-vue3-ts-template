@@ -1,4 +1,4 @@
-import { clamp } from 'lodash-es'
+import { clamp } from 'lodash'
 
 export function draggable(el: HTMLElement, container?: HTMLElement) {
   const parent = (container || document.body) as HTMLElement
