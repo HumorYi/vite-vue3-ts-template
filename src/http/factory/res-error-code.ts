@@ -1,9 +1,8 @@
 import router from '@/router'
+import errorRoutes from '@/router/routes/error'
 import { useUserStore } from '@/store/useUserStore'
 
-export enum ResCode {
-  // 请求成功
-  SUCCESS = 200,
+export enum ResErrorCode {
   // 未授权
   UNAUTHORIZED = 401,
   // 拒绝访问
@@ -15,21 +14,15 @@ export enum ResCode {
 }
 
 export function handleResCode(code: number) {
-  if (code === ResCode.UNAUTHORIZED) {
+  if (code === ResErrorCode.UNAUTHORIZED) {
     useUserStore().toLogin()
 
     return
   }
 
-  if (
-    [
-      ResCode.FORBIDDEN,
-      ResCode.NOT_FOUND,
-      ResCode.INTERNAL_SERVER_ERROR
-    ].includes(code)
-  ) {
+  if (errorRoutes.some(route => route.name === String(code))) {
     router.push({
-      name: code + '',
+      name: String(code),
       query: { redirect: router.currentRoute.value.fullPath }
     })
 

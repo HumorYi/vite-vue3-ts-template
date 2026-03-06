@@ -25,6 +25,7 @@ import Components from 'unplugin-vue-components/vite'
 
 /* 开发环境 S */
 import ViteRestart from 'vite-plugin-restart'
+import vueDevTools from 'vite-plugin-vue-devtools'
 /* 开发环境 E */
 
 /* 生产环境 S */
@@ -287,7 +288,8 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         'src/uno/**/*.ts',
         '.env*'
       ]
-    })
+    }),
+    vueDevTools()
   ]
 
   const prodPlugins: PluginOption[] = [

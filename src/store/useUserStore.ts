@@ -23,107 +23,126 @@ import {
   setRoutePermissionByRole
 } from '@/utils/route'
 
-export const useUserStore = defineStore('user', {
-  state: () => ({
-    token: localStorage.getItem('token') || '',
-    user: null as User | null,
-    isLogin: false
-  }),
-  actions: {
-    async login() {
-      try {
-        const tokenData = await apiLogin({ name: 'xxx' })
+import { getToken, setToken, removeToken } from '@/utils/token'
 
-        this.token = tokenData.token
+export const useUserStore = defineStore('user', () => {
+  const user = ref<User | null>(null)
 
-        const { name, query } = router.currentRoute.value
+  const isLogin = computed(() => !!user.value)
 
-        if (name === RouteName.home) return
+  async function login() {
+    const { name, query } = router.currentRoute.value
 
-        router.replace(
-          (query.redirect as RouteLocationAsRelativeGeneric) || {
-            name: RouteName.home
-          }
-        )
-      } catch (error) {
-        throw error
-      }
-    },
-    async logout() {
-      try {
-        await apiLogout()
+    if (name === RouteName.home) return
 
-        resetRoutePermission(permission)
+    try {
+      const res = await apiLogin({ name: 'xxx' })
 
-        this.token = ''
-        this.user = null
-      } catch (error) {
-        throw error
-      }
-    },
-    async getUser() {
-      if (!this.token) return
+      if (!res?.success) return
 
-      if (!this.user) {
-        try {
-          const userData = await apiGetUser({ name: 'haha' })
+      setToken(res.data.token)
 
-          this.user = userData
+      await getUser()
 
-          this.isLogin = true
-
-          switch (ROUTER_PERMISSION_TYPE) {
-            case RouterPermission.DYNAMIC.valueOf():
-              setRoutePermissionByDynamic(
-                permission,
-                this.user?.routes as unknown as RouteRecordRaw[]
-              )
-              break
-
-            case RouterPermission.ROLE.valueOf():
-              setRoutePermissionByRole(permission, this.user?.role as string)
-              break
-
-            case RouterPermission.AUTH.valueOf():
-              setRoutePermissionByAuth(permission)
-              break
-
-            default:
-              break
-          }
-        } catch (error) {
-          throw error
+      router.replace(
+        (query.redirect as RouteLocationAsRelativeGeneric) || {
+          name: RouteName.home
         }
-      }
-
-      return this.user
-    },
-    async setUser(param: Record<string, any>) {
-      const res = await apiSetUser(param)
-
-      if (res.success) {
-        this.user = res.data as User
-      }
-    },
-    hasRoutePermission(name: string) {
-      return this.isLogin && hasRoutePermissionUtil(permission, name)
-    },
-    toLogin() {
-      const { name, fullPath } = router.currentRoute.value
-
-      this.token = ''
-
-      if (name === RouteName.login) return
-
-      router.push({
-        name: RouteName.login,
-        query: { redirect: fullPath }
-      })
+      )
+    } catch (error) {
+      throw error
     }
-  },
-  persist: {
-    storage: localStorage,
-    pick: ['token']
+  }
+
+  async function logout() {
+    try {
+      const res = await apiLogout()
+
+      if (!res?.success) return
+
+      reset()
+    } catch (error) {
+      throw error
+    }
+  }
+
+  async function getUser() {
+    if (isLogin.value || !getToken()) return
+
+    try {
+      const res = await apiGetUser()
+
+      if (!res?.success) return
+
+      user.value = res.data
+
+      switch (ROUTER_PERMISSION_TYPE) {
+        case RouterPermission.DYNAMIC.valueOf():
+          setRoutePermissionByDynamic(
+            permission,
+            user.value?.routes as unknown as RouteRecordRaw[]
+          )
+          break
+
+        case RouterPermission.ROLE.valueOf():
+          setRoutePermissionByRole(permission, user.value?.role as string)
+          break
+
+        case RouterPermission.AUTH.valueOf():
+          setRoutePermissionByAuth(permission)
+          break
+
+        default:
+          break
+      }
+    } catch (error) {
+      throw error
+    }
+  }
+
+  // 更新用户信息，apiParam 是接口参数，userParam 是用户信息参数，默认为 apiParam
+  async function setUser(
+    apiParam: Record<string, any>,
+    userParam?: Partial<User>
+  ) {
+    const res = await apiSetUser(apiParam)
+
+    if (!res?.success) return
+
+    user.value = { ...user.value, ...(userParam || apiParam) } as User
+  }
+
+  function hasRoutePermission(name: string) {
+    return isLogin.value && hasRoutePermissionUtil(permission, name)
+  }
+
+  function toLogin() {
+    const { name, fullPath } = router.currentRoute.value
+
+    if (name === RouteName.login) return
+
+    reset()
+
+    router.push({ name: RouteName.login, query: { redirect: fullPath } })
+  }
+
+  function reset() {
+    user.value = null
+
+    removeToken()
+
+    resetRoutePermission(permission)
+  }
+
+  return {
+    user,
+    isLogin,
+    login,
+    logout,
+    getUser,
+    setUser,
+    hasRoutePermission,
+    toLogin
   }
 })
 

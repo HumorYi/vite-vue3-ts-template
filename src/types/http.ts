@@ -1,6 +1,7 @@
 import type { InternalAxiosRequestConfig } from 'axios'
 
 export type ApiResult<T> = {
+  success: boolean
   code: number
   message: string
   data: T

@@ -9,7 +9,11 @@
     <button @click="toSettings">设置</button>
   </div>
   <div v-if="user.isLogin" class="m-10">
-    <button class="c-g">用户名: {{ user.user?.name }}</button>
+    <p class="c-g">用户名: {{ user.user?.name }}</p>
+
+    <button class="c-g" @click="user.setUser({ name: 'update' })">
+      更改用户名
+    </button>
   </div>
   <div v-if="user.hasRoutePermission(RouteName.user.root)">
     <button @click="toUser">用户</button>
@@ -19,7 +23,7 @@
   </div>
 
   <div class="v-input">
-    <input placeholder="" v-model="value" v-validate="validateInput" />
+    <input placeholder="" v-model="validateValue" v-validate="validateInput" />
   </div>
 
   <div class="copy flex-center">
@@ -85,7 +89,7 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-const value = ref('')
+const validateValue = ref('')
 const content = ref('被复制的内容')
 
 const validateInput = (val: string) => {

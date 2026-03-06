@@ -13,10 +13,14 @@ import type {
   ReqOption,
   ResOption
 } from '@/types/http'
+
 import { fifo } from '@/utils/base'
+import { getToken } from '@/utils/token'
+
 import LoadingTimer from './loading/timer'
 import { reqRepeat, reqRepeatByRes } from './req-repeat'
-import { handleResCode, ResCode } from './res-code'
+import { handleResCode } from './res-error-code'
+import { handleResDataCode, ResDataCode } from './res-data-code'
 import resDownload from './res-download'
 import resTimeout from './res-timeout'
 
@@ -56,7 +60,7 @@ function handleInterceptReq(instance: AxiosInstance, option?: ReqOption) {
   )
 }
 
-function handleInterceptRes(instance: AxiosInstance, option?: ResOption) {
+function handleInterceptRes<T>(instance: AxiosInstance, option?: ResOption) {
   instance.interceptors.response.use(
     (response: AxiosResponse) => {
       // console.log('response', response)
@@ -65,10 +69,10 @@ function handleInterceptRes(instance: AxiosInstance, option?: ResOption) {
 
       loadingTimer.stop()
 
-      return response
+      return response as AxiosResponse
     },
     error => {
-      console.error('响应错误:', error)
+      console.error(error?.message)
 
       // 拦截掉重复请求的错误, 中断 promise 执行
       // if (axios.isCancel(error)) {
@@ -77,6 +81,7 @@ function handleInterceptRes(instance: AxiosInstance, option?: ResOption) {
 
       if (error?.config) reqRepeatByRes(error.config)
 
+      // 响应超时重试
       if (error?.message?.includes('timeout')) {
         return resTimeout(
           instance,
@@ -88,6 +93,14 @@ function handleInterceptRes(instance: AxiosInstance, option?: ResOption) {
 
           return Promise.reject(error)
         })
+      }
+
+      // 针对 http 响应状态码做相应处理
+      const statusCode = Number(
+        error?.message?.replace('Request failed with status code ', '')
+      )
+      if (statusCode) {
+        handleResCode(statusCode)
       }
 
       loadingTimer.stop()
@@ -112,13 +125,17 @@ async function handleReq<T>(
 
       resDownload(res)
     } else {
-      const { data } = await instance<ApiResult<T>>(config)
+      const { status, data } = await instance<ApiResult<T>>(config)
 
-      if (data.code === ResCode.SUCCESS) return data.data
-      else handleResCode(data.code)
+      if (status !== 200) return
+
+      // 前后端约定数据状态码，前端做出对应处理，例如：提示信息、再次确认
+      if (Object.values(ResDataCode).some(val => val === data.code)) {
+        return handleResDataCode(data)
+      }
+
+      return data
     }
-
-    return undefined as T
   } catch (error) {
     throw error
   }
@@ -129,12 +146,8 @@ function genMethod(
   method: Method,
   factoryOption: FactoryOption
 ) {
-  return async <T>(
-    url: string,
-    params?: object,
-    apiOption?: ApiOption
-  ): Promise<T> => {
-    const token = localStorage.getItem('token') || ''
+  return async <T>(url: string, params?: object, apiOption?: ApiOption) => {
+    const token = getToken()
     const isDownload = apiOption?.download
     const config: AxiosRequestConfig = {
       method,
@@ -157,16 +170,19 @@ function genMethod(
       apiOption?.loadingTimerOption || factoryOption?.loadingTimerOption
     )
 
-    return apiOption?.fifo || factoryOption?.fifo
-      ? fifo()(
-          () => handleReq<T>(instance, config, isDownload),
-          apiOption?.fifoDelay || factoryOption?.fifoDelay
-        )
-      : handleReq<T>(instance, config, isDownload)
+    const reslut =
+      apiOption?.fifo || factoryOption?.fifo
+        ? fifo()(
+            () => handleReq<T>(instance, config, isDownload),
+            apiOption?.fifoDelay || factoryOption?.fifoDelay
+          )
+        : handleReq<T>(instance, config, isDownload)
+
+    return reslut as unknown as ApiResult<T>
   }
 }
 
-function factory(instance: AxiosInstance, option: FactoryOption) {
+function factory<T>(instance: AxiosInstance, option: FactoryOption) {
   handleInterceptReq(instance, option.instanceReq)
 
   handleInterceptRes(instance, option.instanceRes)
