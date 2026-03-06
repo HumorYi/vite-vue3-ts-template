@@ -2,7 +2,6 @@ import type { AxiosInstance } from 'axios'
 
 export default async function resTimeout(
   instance: AxiosInstance,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   error: any,
   max = 3,
   increaseMs = 1000

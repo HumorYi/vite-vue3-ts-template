@@ -24,8 +24,12 @@ export type LoadingTimerOption = {
 export type ApiOption = FactoryAndApiOption & {
   // 单个请求超时
   timeout?: number
-  // 文件下载，传 true
+  // 是否开启文件下载
   download?: boolean
+  // 是否缓存
+  cache?: boolean
+  // 缓存时间 毫秒
+  cacheTime?: number
 }
 
 export type ReqOption = {

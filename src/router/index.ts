@@ -1,7 +1,10 @@
+import { createRouter, createWebHistory } from 'vue-router'
+
+import routes from './routes'
+
 import { RouteName } from '@/config/router'
 import { useUserStore } from '@/store/useUserStore'
-import { createRouter, createWebHistory } from 'vue-router'
-import routes from './routes'
+import { cancelAllReq } from '@/http/factory/req-repeat'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -12,6 +15,9 @@ const router = createRouter({
 
 // 全局前置守卫
 router.beforeEach(async (to, _from) => {
+  // 路由切换取消之前的所有请求
+  cancelAllReq()
+
   // 由于 to 更新 meta 后没有实时更新，借助 matched 来匹配 最终 to
   const { meta } = to.matched.find(record => to.name === record.name) || to
 

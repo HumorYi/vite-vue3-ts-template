@@ -13,7 +13,7 @@ export enum ResErrorCode {
   INTERNAL_SERVER_ERROR = 500
 }
 
-export function handleResCode(code: number) {
+export function handleResErrorCode(code: number) {
   if (code === ResErrorCode.UNAUTHORIZED) {
     useUserStore().toLogin()
 

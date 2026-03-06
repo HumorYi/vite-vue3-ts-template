@@ -3,7 +3,7 @@ import Counter from './counter'
 import Loading from './loading'
 
 export default class Timer {
-  timer: string | number | NodeJS.Timeout | undefined
+  timer: NodeJS.Timeout | string | number | undefined
   startTime = 0
   delay = 0
   hide = false
@@ -19,6 +19,7 @@ export default class Timer {
 
   start(timerOption?: LoadingTimerOption) {
     if (timerOption?.hide) {
+
       this.hide = true
 
       return
@@ -51,7 +52,7 @@ export default class Timer {
     if (this.counter.isFinished()) {
       if (this.isOpen()) this.loading.close()
 
-      clearInterval(this.timer)
+      clearTimeout(this.timer)
     }
   }
 

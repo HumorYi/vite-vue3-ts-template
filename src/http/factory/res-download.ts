@@ -1,6 +1,5 @@
 import type { AxiosResponse } from 'axios'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function resDownload(res: AxiosResponse<BlobPart, any>) {
   const { headers, data } = res
   const blob = new Blob([data], { type: headers['content-type'] })

@@ -44,11 +44,11 @@ export const useUserStore = defineStore('user', () => {
 
       await getUser()
 
-      router.replace(
-        (query.redirect as RouteLocationAsRelativeGeneric) || {
-          name: RouteName.home
-        }
-      )
+      // router.replace(
+      //   (query.redirect as RouteLocationAsRelativeGeneric) || {
+      //     name: RouteName.home
+      //   }
+      // )
     } catch (error) {
       throw error
     }

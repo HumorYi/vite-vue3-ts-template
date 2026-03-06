@@ -2,7 +2,6 @@ import { debounce as lodashDebounce, type DebouncedFunc } from 'lodash'
 import type { Directive } from 'vue'
 
 interface ElType extends HTMLElement {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _debounce?: DebouncedFunc<any>
 }
 

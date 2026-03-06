@@ -10,7 +10,7 @@ export async function apiLogout() {
 }
 
 export async function apiGetUser(params?: Record<string, any>) {
-  return await get<User>('/user', params)
+  return await get<User>('/user', params, { cache: true })
 }
 
 export async function apiSetUser(params: Record<string, any>) {
