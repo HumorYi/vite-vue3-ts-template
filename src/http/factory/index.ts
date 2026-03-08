@@ -117,7 +117,7 @@ async function handleReq<T>(
           return
         }
 
-        return data
+        return Promise.resolve(data)
       }
     }
 

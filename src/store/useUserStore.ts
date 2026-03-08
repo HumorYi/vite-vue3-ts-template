@@ -23,8 +23,9 @@ import {
   setRoutePermissionByRole
 } from '@/utils/route'
 
-import { getToken, removeToken, setToken } from '@/utils/token'
 import type { ApiOption } from '@/types/http'
+import { getToken, removeToken, setToken } from '@/utils/token'
+import { useTimeout } from '@vueuse/core'
 
 export const useUserStore = defineStore('user', () => {
   const router = useRouter()
@@ -111,6 +112,15 @@ export const useUserStore = defineStore('user', () => {
     const res = await apiSetUser(apiParam, apiOption)
 
     if (!res?.success) return
+
+    useTimeout(2000, {
+      callback: () => {
+        // 组件卸载后禁止异步内容处理
+        if (apiOption?.componentInstance?.isUnmounted) return
+
+        console.log('back')
+      }
+    })
 
     user.value = { ...user.value, ...(userParam || apiParam) } as User
   }

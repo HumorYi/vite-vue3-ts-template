@@ -1,4 +1,5 @@
 import type { GenericAbortSignal, InternalAxiosRequestConfig } from 'axios'
+import type { ComponentInternalInstance } from 'vue'
 
 export type ApiResult<T> = {
   success: boolean
@@ -38,8 +39,10 @@ export type FactoryOption = FactoryAndApiOption & {
 }
 
 export type ApiOption = FactoryAndApiOption & {
-  // 控制中断请求信号，用于 store 中组件卸载时中断请求
+  // 请求信号，控制中断请求信号，用于 store 中组件卸载后中断请求
   signal?: GenericAbortSignal
+  // 组件实例，用于 组件卸载后禁止异步内容处理，如 定时器
+  componentInstance?: ComponentInternalInstance
   // 单个请求超时
   timeout?: number
   // 是否开启文件下载

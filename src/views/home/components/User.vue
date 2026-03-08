@@ -7,9 +7,8 @@ const useStore = useUserStore()
 const param = { name: 'signal' }
 const apiOption = useApiSignal()
 
-// useStore.setUser(param, param, apiOption)
-
-apiSetUser(param, apiOption)
+// apiSetUser(param, apiOption)
+useStore.setUser(param, param, apiOption)
 </script>
 
 <template>

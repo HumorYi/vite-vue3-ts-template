@@ -12,7 +12,10 @@
   <div v-if="user.isLogin" class="m-10">
     <p class="c-g">用户名: {{ user.user?.name }}</p>
 
-    <button class="c-g" @click="user.setUser({ name: 'update' })">
+    <button
+      class="c-g"
+      @click="user.setUser({ name: 'update' }, { name: 'update' }, apiSignal)"
+    >
       更改用户名
     </button>
 
@@ -94,8 +97,11 @@ import { apiGetFile } from '@/api/common'
 import { RouteName } from '@/config/router'
 import { useUserStore } from '@/store/useUserStore'
 import { hasRoutePermission } from '@/utils/route'
+import { useApiSignal } from '@/composables/useApiSignal'
 
 const router = useRouter()
+
+const apiSignal = useApiSignal()
 
 const validateValue = ref('')
 const content = ref('被复制的内容')
