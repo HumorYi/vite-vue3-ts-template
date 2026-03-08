@@ -171,6 +171,10 @@ function genMethod(
       config.data = params
     }
 
+    if (apiOption.signal) {
+      config.signal = apiOption.signal
+    }
+
     if (apiOption.timeout) {
       config.timeout = apiOption.timeout
     }
@@ -180,12 +184,15 @@ function genMethod(
     }
 
     if (option.token && token) {
-      config.headers = { Authorization: `Bearer ${token}` }
+      config.headers = {
+        ...(config.headers || {}),
+        Authorization: `Bearer ${token}`
+      }
     }
 
-    const reslut = option.fifo
-      ? fifo()(() => handleReq<T>(instance, config, option), option.fifoDelay)
-      : handleReq<T>(instance, config, option)
+    const handle = () => handleReq<T>(instance, config, option)
+
+    const reslut = option.fifo ? fifo()(handle, option.fifoDelay) : handle()
 
     return reslut as unknown as ApiResult<T>
   }

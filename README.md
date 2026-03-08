@@ -176,6 +176,7 @@
 │   │   ├── layouts                           布局组件
 │   │   └── modules                           业务组件
 │   ├── composables                           composition 函数
+│   │   └── useApiSignal                      api signal 钩子，组件卸载中断请求
 │   ├── config                                自定义配置
 │   │   ├── router.ts
 │   │   └── user.ts
@@ -222,7 +223,8 @@
 │   ├── store                                 pinia store
 │   │   └── useUserStore.ts                   用户 store
 │   ├── types                                 类型定义
-│   │   ├── api.ts
+│   │   ├── api.ts                            同 api 目录
+│   │       └── user.ts
 │   │   ├── http.ts
 │   │   └── json.ts
 │   ├── uno                                   自定义 uno 配置

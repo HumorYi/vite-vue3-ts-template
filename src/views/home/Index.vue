@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="!user.isLogin">
     <button @click="toLogin">登录</button>
   </div>
   <div>
@@ -8,12 +8,16 @@
   <div v-if="hasRoutePermission(RouteName.settings.root)">
     <button @click="toSettings">设置</button>
   </div>
+
   <div v-if="user.isLogin" class="m-10">
     <p class="c-g">用户名: {{ user.user?.name }}</p>
 
     <button class="c-g" @click="user.setUser({ name: 'update' })">
       更改用户名
     </button>
+
+    <User v-if="isShowUser" />
+    <button @click="isShowUser = !isShowUser">组件卸载自动取消请求</button>
   </div>
   <div v-if="hasRoutePermission(RouteName.user.root)">
     <button @click="toUser">用户</button>
@@ -82,16 +86,21 @@
 </template>
 
 <script lang="ts" setup name="Home">
+import { useRouter } from 'vue-router'
+
+import User from './components/User.vue'
+
 import { apiGetFile } from '@/api/common'
 import { RouteName } from '@/config/router'
 import { useUserStore } from '@/store/useUserStore'
 import { hasRoutePermission } from '@/utils/route'
-import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
 const validateValue = ref('')
 const content = ref('被复制的内容')
+
+const isShowUser = ref(false)
 
 const validateInput = (val: string) => {
   if (!val) {

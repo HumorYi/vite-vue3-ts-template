@@ -12,7 +12,7 @@ import {
   RouterPermission
 } from '@/config/router'
 
-import { type User } from '@/types/api'
+import { type User } from '@/types/api/user'
 
 import { apiGetUser, apiLogin, apiLogout, apiSetUser } from '@/api/user'
 
@@ -24,6 +24,7 @@ import {
 } from '@/utils/route'
 
 import { getToken, removeToken, setToken } from '@/utils/token'
+import type { ApiOption } from '@/types/http'
 
 export const useUserStore = defineStore('user', () => {
   const router = useRouter()
@@ -33,7 +34,6 @@ export const useUserStore = defineStore('user', () => {
   const isLogin = computed(() => !!user.value)
 
   async function login() {
-
     const { name, query } = route
 
     if (name === RouteName.home) return
@@ -105,9 +105,10 @@ export const useUserStore = defineStore('user', () => {
   // 更新用户信息，apiParam 是接口参数，userParam 是用户信息参数，默认为 apiParam
   async function setUser(
     apiParam: Record<string, any>,
-    userParam?: Partial<User>
+    userParam?: Partial<User>,
+    apiOption?: ApiOption
   ) {
-    const res = await apiSetUser(apiParam)
+    const res = await apiSetUser(apiParam, apiOption)
 
     if (!res?.success) return
 

@@ -23,7 +23,7 @@ const reqQueue = new Map()
 
 export function reqRepeat(config: any) {
   // 超时重试
-  if (config._reqKey) return
+  if (config.signal || config._reqKey) return
 
   const key = getReqKey(config)
   const controller = new AbortController()

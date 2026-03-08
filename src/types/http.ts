@@ -1,4 +1,4 @@
-import type { InternalAxiosRequestConfig } from 'axios'
+import type { GenericAbortSignal, InternalAxiosRequestConfig } from 'axios'
 
 export type ApiResult<T> = {
   success: boolean
@@ -38,6 +38,8 @@ export type FactoryOption = FactoryAndApiOption & {
 }
 
 export type ApiOption = FactoryAndApiOption & {
+  // 控制中断请求信号，用于 store 中组件卸载时中断请求
+  signal?: GenericAbortSignal
   // 单个请求超时
   timeout?: number
   // 是否开启文件下载
