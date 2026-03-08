@@ -13,40 +13,40 @@ import type { RouteRecordRaw } from 'vue-router'
 const routes: RouteRecordRaw[] = [
   {
     path: '/settings',
-    component: () => import('@/views/settings/Index.vue'),
+    component: () => import('@/pages/settings/Index.vue'),
     meta: { menuName: '设置' },
     children: [
       {
         path: '',
         name: RouteName.settings.root,
-        component: () => import('@/views/settings/Home.vue')
+        component: () => import('@/pages/settings/Home.vue')
       },
       {
         path: 'base',
         name: RouteName.settings.base,
-        component: () => import('@/views/settings/Base.vue'),
+        component: () => import('@/pages/settings/Base.vue'),
         meta: { menuName: '基础设置' }
       },
       {
         path: 'advance',
-        component: () => import('@/views/settings/Advance/Index.vue'),
+        component: () => import('@/pages/settings/Advance/Index.vue'),
         meta: { menuName: '高级设置', roles: [UserRole.ADMIN] },
         children: [
           {
             path: '',
             name: RouteName.settings.advance.root,
-            component: () => import('@/views/settings/Advance/Home.vue')
+            component: () => import('@/pages/settings/Advance/Home.vue')
           },
           {
             path: 'base',
             name: RouteName.settings.advance.base,
-            component: () => import('@/views/settings/Advance/Base.vue'),
+            component: () => import('@/pages/settings/Advance/Base.vue'),
             meta: { menuName: '高级设置 - 基础' }
           },
           {
             path: 'other',
             name: RouteName.settings.advance.other,
-            component: () => import('@/views/settings/Advance/Other.vue'),
+            component: () => import('@/pages/settings/Advance/Other.vue'),
             meta: { menuName: '高级设置 - 其它' }
           }
         ]
@@ -55,24 +55,24 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '/user',
-    component: () => import('@/views/user/Index.vue'),
+    component: () => import('@/pages/user/Index.vue'),
     meta: { menuName: '用户' },
     children: [
       {
         path: '',
         name: RouteName.user.root,
-        component: () => import('@/views/user/Home.vue')
+        component: () => import('@/pages/user/Home.vue')
       },
       {
         path: 'base',
         name: RouteName.user.base,
-        component: () => import('@/views/user/Base.vue'),
+        component: () => import('@/pages/user/Base.vue'),
         meta: { menuName: '基础用户' }
       },
       {
         path: 'advance',
         name: RouteName.user.advance,
-        component: () => import('@/views/user/Advance.vue'),
+        component: () => import('@/pages/user/Advance.vue'),
         meta: { menuName: '高级用户', roles: [UserRole.ADMIN] }
       }
     ]

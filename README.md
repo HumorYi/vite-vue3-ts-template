@@ -35,8 +35,8 @@
   - 请求扩展，将请求方法包装一层，接收自定义请求选项
     - 是否 携带 token
     - 文件下载
-    - signal 请求信号，用于组件卸载、路由跳转中断请求
-    - componentInstance 组件实例，用于 组件卸载后禁止异步内容处理，如 定时器
+    - 请求中断请控制器，用于 组件卸载后中断请求
+    - 组件实例，用于 组件卸载后禁止异步内容处理，如 定时器
     - 开启 loading
       - 通过定时器来设置 loading 延迟时间，避免用户一点击就弹出吓一跳，提升用户体验
       - 通过计数器控制多个请求只开启一个 loading，避免重复开启，导致闪烁
@@ -141,6 +141,8 @@
 ├── package-lock.json                         包配置，锁定依赖版本
 ├── package.json                              包配置
 ├── prettier.config.js                        prettier 配置
+├── plugins                                   插件
+│   ├── vite-plugin-cdn-order                 自写 cdn 插件
 ├── public                                    静态资源
 ├── README.md                                 先看此文件，便于了解项目设计思路
 ├── src                                       源码
@@ -207,9 +209,31 @@
 │   │   │   ├── res-download.ts               响应文件下载
 │   │   │   └── res-timeout.ts                响应超时
 │   │   └── index.ts
+│   └── pages                                 页面目录
+│       ├── error                             错误页（测试）
+│       │   ├── 403.vue
+│       │   ├── 404.vue
+│       │   ├── 500.vue
+│       │   └── Index.vue
+│       ├── home                              首页（测试：权限路由）
+│       │   └── Index.vue
+│       ├── login                             登录页（测试）
+│       │   └── Index.vue
+│       ├── settings                          设置页（测试：权限路由）
+│       │   ├── Advance                       嵌套页（测试：嵌套路由）
+│       │   │   ├── Base.vue
+│       │   │   ├── Home.vue
+│       │   │   ├── Index.vue
+│       │   │   └── Other.vue
+│       │   ├── Base.vue
+│       │   ├── Home.vue
+│       │   └── Index.vue
+│       └── user                              设置页（测试：权限路由）
+│           ├── Advance.vue
+│           ├── Base.vue
+│           ├── Home.vue
+│           └── Index.vue
 │   ├── main.ts                               入口文件
-│   ├── plugins                               插件
-│   │   └── custom-vite-restart.ts
 │   ├── router                                路由器
 │   │   ├── index.ts                          路由器入口
 │   │   └── routes                            路由表
@@ -244,30 +268,6 @@
 │   │   ├── file.ts
 │   │   ├── resource.ts
 │   │   └── route.ts
-│   └── views                                 页面目录
-│       ├── error                             错误页（测试）
-│       │   ├── 403.vue
-│       │   ├── 404.vue
-│       │   ├── 500.vue
-│       │   └── Index.vue
-│       ├── home                              首页（测试：权限路由）
-│       │   └── Index.vue
-│       ├── login                             登录页（测试）
-│       │   └── Index.vue
-│       ├── settings                          设置页（测试：权限路由）
-│       │   ├── Advance                       嵌套页（测试：嵌套路由）
-│       │   │   ├── Base.vue
-│       │   │   ├── Home.vue
-│       │   │   ├── Index.vue
-│       │   │   └── Other.vue
-│       │   ├── Base.vue
-│       │   ├── Home.vue
-│       │   └── Index.vue
-│       └── user                              设置页（测试：权限路由）
-│           ├── Advance.vue
-│           ├── Base.vue
-│           ├── Home.vue
-│           └── Index.vue
 ├── stylelint.config.js                       stylelint 配置
 ├── tsconfig.app.json                         vite 在 app 环境中的 ts 规则
 ├── tsconfig.json                             ts 配置

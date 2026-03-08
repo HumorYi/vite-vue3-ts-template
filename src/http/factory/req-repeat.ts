@@ -1,3 +1,4 @@
+import type { ApiOption } from '@/types/http'
 import type { AxiosRequestConfig } from 'axios'
 
 function getParam(obj: any) {
@@ -21,30 +22,30 @@ export function getReqKey(config: AxiosRequestConfig) {
 // 创建存储 key 的 集合
 const reqQueue = new Map()
 
-export function reqRepeat(config: any) {
+export function reqRepeat(config: any, apiOption: ApiOption) {
   // 超时重试
-  if (config.signal || config._reqKey) return
+  if (config.signal) return
 
   const key = getReqKey(config)
-  const controller = new AbortController()
+  const abortController = apiOption.abortController || new AbortController()
 
-  config.signal = controller.signal
+  config.signal = abortController.signal
 
   // 判断是否存在key 存在取消请求 不存在添加
   if (reqQueue.has(key)) {
-    controller.abort()
+    abortController.abort()
 
     return
   }
 
-  config._reqKey = key
-
   //手动取消
-  reqQueue.set(key, controller)
+  reqQueue.set(key, abortController)
 }
 
 export function reqRepeatByRes(config: any) {
-  reqQueue.delete(getReqKey(config))
+  const key = getReqKey(config)
+
+  if (reqQueue.has(key)) reqQueue.delete(key)
 }
 
 export const cancelAllReq = () => {

@@ -5,7 +5,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     name: RouteName.home,
-    component: () => import('@/views/home/Index.vue'),
+    component: () => import('@/pages/home/Index.vue'),
     meta: {
       title: '首页',
       // 是否需要身份验证，即用户信息
@@ -15,7 +15,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/login',
     name: RouteName.login,
-    component: () => import('@/views/login/Index.vue'),
+    component: () => import('@/pages/login/Index.vue'),
     meta: {
       title: '登录页'
     }

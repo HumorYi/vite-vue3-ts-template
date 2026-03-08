@@ -4,7 +4,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/403',
     name: '403',
-    component: () => import('@/views/error/403.vue'),
+    component: () => import('@/pages/error/403.vue'),
     meta: {
       title: '403页面'
     }
@@ -12,7 +12,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/404',
     name: '404',
-    component: () => import('@/views/error/404.vue'),
+    component: () => import('@/pages/error/404.vue'),
     meta: {
       title: '404页面'
     }
@@ -20,7 +20,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/500',
     name: '500',
-    component: () => import('@/views/error/500.vue'),
+    component: () => import('@/pages/error/500.vue'),
     meta: {
       title: '500页面'
     }
@@ -28,7 +28,7 @@ const routes: RouteRecordRaw[] = [
   // 解决刷新页面，路由警告
   {
     path: '/:pathMatch(.*)*',
-    component: () => import('@/views/error/404.vue')
+    component: () => import('@/pages/error/404.vue')
   }
 ]
 

@@ -33,8 +33,6 @@ const loadingTimer = new LoadingTimer()
 function handleInterceptReq(instance: AxiosInstance, option?: ReqOption) {
   instance.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
-      reqRepeat(config)
-
       // 有些第三方 api 需要做另外处理
       if (option?.handleReqConfig) option.handleReqConfig(config)
 
@@ -117,11 +115,13 @@ async function handleReq<T>(
           return
         }
 
-        return Promise.resolve(data)
+        return data
       }
     }
 
     loadingTimer.start(loadingTimerOption)
+
+    reqRepeat(config, apiOption)
 
     if (download) {
       const res = await instance<BlobPart>(config)
@@ -169,10 +169,6 @@ function genMethod(
       config.params = params
     } else if (['post', 'put'].includes(method)) {
       config.data = params
-    }
-
-    if (apiOption.signal) {
-      config.signal = apiOption.signal
     }
 
     if (apiOption.timeout) {
