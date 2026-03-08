@@ -3,18 +3,15 @@
 ## 处理事项
 
 - 项目规范
-
   - stylelint（样式规范）若使用 VsCode，需安装 Stylelint 插件
   - eslint（脚本规范）若使用 VsCode，需安装 ESLint 插件
   - prettier（格式化规范）若使用 VsCode，需安装 Prettier - Code formatter 插件
   - commitlint（git 提交规范）
 
 - Vue 使用规范
-
   - 为避免内容泄漏，在组件内部优先使用 @vueuse/core 提供的 hook，会在组件卸载时清仓副作用，如：useTime 替代 setTimeout
 
 - Vite
-
   - 基础配置：路径映射、请求代理、注入样式全局变量等
   - [UnoCss](https://unocss.dev/guide/) ，可直接使用内部基础样式，亦可依据项目需求组装等
   - API 自动按需导入，不用再频繁导入依赖包 API，提升开发效率
@@ -24,7 +21,6 @@
   - 打包分析：查看打包后资源包是否打包、文件大小、文件拆分等
 
 - http 请求，使用 axios
-
   - 封装请求工厂函数，适配访问多方 API，提供了通用配置 及 API 单独配置优先
   - 请求拦截器
     - 提供请求数据处理函数，可按需引入 或 自定义
@@ -51,7 +47,6 @@
       - 实现原理，使用 Promise 截住请求、计数器 控制顺序、定时器 轮询检测
 
 - 路由处理
-
   - 路由表分为 基础表、权限表、错误表
   - 路由基础表，通过配置元数据 meta { auth: Boolean } 来要求当前路由是否需要用户认证
   - 路由权限表，通过配置元数据 meta { permission: Boolean } 来要求当前路由是否需要权限
@@ -178,7 +173,7 @@
 │   │   ├── layouts                           布局组件
 │   │   └── modules                           业务组件
 │   ├── composables                           composition 函数
-│   │   └── useApiSignal                      api signal 钩子，组件卸载中断请求
+│   │   └── useApiOption                      api signal 钩子，组件卸载中断请求
 │   ├── config                                自定义配置
 │   │   ├── router.ts
 │   │   └── user.ts

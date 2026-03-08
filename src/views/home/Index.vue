@@ -14,7 +14,7 @@
 
     <button
       class="c-g"
-      @click="user.setUser({ name: 'update' }, { name: 'update' }, apiSignal)"
+      @click="user.setUser({ name: 'update' }, { name: 'update' }, apiOption)"
     >
       更改用户名
     </button>
@@ -94,14 +94,14 @@ import { useRouter } from 'vue-router'
 import User from './components/User.vue'
 
 import { apiGetFile } from '@/api/common'
+import { useApiOption } from '@/composables/useApiOption'
 import { RouteName } from '@/config/router'
 import { useUserStore } from '@/store/useUserStore'
 import { hasRoutePermission } from '@/utils/route'
-import { useApiSignal } from '@/composables/useApiSignal'
 
 const router = useRouter()
 
-const apiSignal = useApiSignal()
+const apiOption = useApiOption()
 
 const validateValue = ref('')
 const content = ref('被复制的内容')

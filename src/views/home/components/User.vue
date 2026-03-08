@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { apiSetUser } from '@/api/user'
-import { useApiSignal } from '@/composables/useApiSignal'
+import { useApiOption } from '@/composables/useApiOption'
 import { useUserStore } from '@/store/useUserStore'
 
 const useStore = useUserStore()
 const param = { name: 'signal' }
-const apiOption = useApiSignal()
+const apiOption = useApiOption()
 
 // apiSetUser(param, apiOption)
 useStore.setUser(param, param, apiOption)

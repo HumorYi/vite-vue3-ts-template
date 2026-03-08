@@ -28,20 +28,20 @@ type Module = {
 }
 
 type Option = {
-  // 同 Vite 打包后静态资源目录，用于获取打包后 index.html 内部 js 入口文件，保证所有依赖加载完成后才会加载 入口文件
-  assetsDir: string
   // 依赖模块列表
   modules: Module[]
   // 全局 cdn 地址
   cdnUrl?: string
   // 全局 本地 地址
   localUrl?: string
+  // 同 Vite 打包后静态资源目录，用于获取打包后 index.html 内部 js 入口文件，保证所有依赖加载完成后才会加载 入口文件
+  assetsDir?: string
   // rollup 格式，目前只支持明确指定格式为 umd，确保全局变量生效
   format?: 'umd'
 }
 
-function getExternal(arr: Record<string, any>) {
-  const res = []
+function getExternal(arr: Module[]) {
+  const res: string[] = []
 
   arr.forEach(mod => {
     res.push(mod.name)
@@ -54,8 +54,8 @@ function getExternal(arr: Record<string, any>) {
   return res
 }
 
-function getGlobals(arr: Record<string, any>) {
-  const obj = {}
+function getGlobals(arr: Module[]) {
+  const obj:Record<string, string> = {}
 
   arr.forEach(mod => {
     obj[mod.name] = mod.var
@@ -68,17 +68,19 @@ function getGlobals(arr: Record<string, any>) {
   return obj
 }
 
-export default function vitePluginCdnOrder(option: Option = {}) {
-  const { assetsDir, modules, cdnUrl, localUrl, format } = {
-    localUrl: '/libs/',
-    format: 'umd',
-    ...option
-  }
+export default function vitePluginCdnOrder(option: Option) {
+  const {
+    cdnUrl,
+    modules,
+    localUrl = '/libs/',
+    assetsDir = 'assets',
+    format = 'umd'
+  } = option
 
   return {
     name: 'vite-plugin-cdn-order',
     // 转换 index.html 中的标签，注入 onerror 逻辑
-    transformIndexHtml(html) {
+    transformIndexHtml(html: string) {
       return html.replace(
         new RegExp(`<script.*?src="(./${assetsDir}/.*?\.js)"></script>`, 'g'),
         (match, entryUrl) => {
@@ -166,7 +168,7 @@ export default function vitePluginCdnOrder(option: Option = {}) {
         }
       )
     },
-    config(config, { command }) {
+    config(config: Record<string, any>, { command }: any) {
       if (command !== 'build') return
 
       config.build ??= {}
