@@ -21,17 +21,6 @@ export type LoadingTimerOption = {
   loading?: LoadingOption
 }
 
-export type ApiOption = FactoryAndApiOption & {
-  // 单个请求超时
-  timeout?: number
-  // 是否开启文件下载
-  download?: boolean
-  // 是否缓存
-  cache?: boolean
-  // 缓存时间 毫秒
-  cacheTime?: number
-}
-
 export type ReqOption = {
   handleReqConfig?: (config: InternalAxiosRequestConfig) => void
 }
@@ -48,6 +37,13 @@ export type FactoryOption = FactoryAndApiOption & {
   instanceRes?: ResOption
 }
 
+export type ApiOption = FactoryAndApiOption & {
+  // 单个请求超时
+  timeout?: number
+  // 是否开启文件下载
+  download?: boolean
+}
+
 type FactoryAndApiOption = {
   // 默认携带 token，不携带 传 false
   token?: boolean
@@ -57,4 +53,8 @@ type FactoryAndApiOption = {
   fifoDelay?: number
   // loading 定时器选项，用于控制 loading 执行时机 和 对应选项
   loadingTimerOption?: LoadingTimerOption
+  // 是否缓存
+  cache?: boolean
+  // 缓存时间 毫秒
+  cacheTime?: number
 }

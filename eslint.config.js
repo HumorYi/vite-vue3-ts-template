@@ -43,7 +43,8 @@ export default [
       ],
       "@typescript-eslint/no-explicit-any": "error", // 确保规则已启用
       // 单字组件名
-      "vue/multi-word-component-names": "off"
+      "vue/multi-word-component-names": "off",
+      'no-uncleared-interval': ['error', { checkUnmounted: true }]
     }
   }
 ]

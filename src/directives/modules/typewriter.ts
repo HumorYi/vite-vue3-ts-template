@@ -1,3 +1,4 @@
+import { useInterval, useTimeout } from '@vueuse/core'
 import type { Directive } from 'vue'
 
 const blinkAnimationStyle = `
@@ -16,10 +17,6 @@ const blinkAnimationStyle = `
   }
 `
 
-interface addStylesOnce extends HTMLElement {
-  _style?: () => HTMLElement
-}
-
 const addStylesOnce = (() => {
   const style = document.createElement('style')
 
@@ -34,18 +31,6 @@ const addStylesOnce = (() => {
   }
 })()
 
-const timerMap = new WeakMap<Element, number[]>()
-
-function clearTimers(el: Element) {
-  const timers = timerMap.get(el)
-
-  if (!timers) return
-
-  timers.forEach(clearInterval)
-
-  timerMap.delete(el)
-}
-
 // 一段文字
 const typewriter: Directive = {
   mounted(el: HTMLElement) {
@@ -58,8 +43,6 @@ const typewriter: Directive = {
     const children = el.children
 
     const run = (elem: Element, txt: string, cb?: () => void) => {
-      clearTimers(elem)
-
       elem.classList.add('typewriter-cursor')
 
       // 2.设置一个随机数random，长度小于上面的文本长度
@@ -68,36 +51,45 @@ const typewriter: Directive = {
       elem.textContent = txt
 
       // 3.删除text中random个字符，每隔200ms删除一个，直到删除random个
-      let timer1 = setInterval(() => {
-        elem.textContent = elem.textContent!.substring(
-          0,
-          elem.textContent!.length - 1
-        )
+      const { pause } = useInterval(200, {
+        controls: true,
+        callback: () => {
+          elem.textContent = elem.textContent!.substring(
+            0,
+            elem.textContent!.length - 1
+          )
 
-        if (elem.textContent.length !== random) return
+          if (elem.textContent.length !== random) return
 
-        // 4.删除完成之后，每隔0.5s添加一个字符，直到添加完毕，这个是一个轮回。
-        const timer2 = setInterval(() => {
+          resume2()
+
+          pause()
+        }
+      })
+
+
+      const { start } = useTimeout(5000, {
+        immediate: false,
+        controls: true,
+        callback: () => (typeof cb === 'function' ? cb() : run(elem, txt))
+      })
+      
+      // 4.删除完成之后，每隔0.5s添加一个字符，直到添加完毕，这个是一个轮回。
+      const { pause: pause2, resume: resume2 } = useInterval(500, {
+        immediate: false,
+        controls: true,
+        callback: () => {
           elem.textContent += txt!.charAt(elem.textContent!.length)
 
           if (elem.textContent!.length !== txt.length) return
 
-          clearInterval(timer2)
+          pause2()
 
           elem.classList.remove('typewriter-cursor')
 
-          setTimeout(
-            () => (typeof cb === 'function' ? cb() : run(elem, txt)),
-            5000
-          )
-        }, 500)
-
-        clearInterval(timer1)
-
-        timerMap.get(elem)?.push(timer2 as unknown as number)
-      }, 200)
-
-      timerMap.get(elem)?.push(timer1 as unknown as number)
+          start()
+        }
+      })
     }
 
     const runChildren = () => {
@@ -112,9 +104,6 @@ const typewriter: Directive = {
 
     if (text && children.length === 0) run(el, text)
     else runChildren()
-  },
-  beforeUnmount(el) {
-    clearTimers(el)
   }
 }
 

@@ -51,10 +51,8 @@ export function getFilePaths({
     .map(filePath => {
       switch (type) {
         case FileOptionType.FILE:
-          // eslint-disable-next-line @typescript-eslint/no-require-imports
           return require(filePath)
         case FileOptionType.FILE_KEY:
-          // eslint-disable-next-line @typescript-eslint/no-require-imports
           return require(filePath)[FileOptionType.FILE_KEY]
 
         default:

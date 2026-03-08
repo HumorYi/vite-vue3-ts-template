@@ -25,6 +25,14 @@ export function isValidCache(config: AxiosRequestConfig, cacheTime: number) {
   return cache ? Date.now() - cache.time < cacheTime : false
 }
 
+export function getResCacheData(config: AxiosRequestConfig, cacheTime: number) {
+  if (!hasResCache(config)) return
+
+  if (isValidCache(config, cacheTime)) return getResCache(config)?.data
+
+  removeResCache(config)
+}
+
 export function clearResCache() {
   resCache.clear()
 }

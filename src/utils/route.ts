@@ -3,7 +3,10 @@
  * 后续关于路由的处理，调用此文件提供的方法
  */
 
-import { useRouter, type RouteRecordRaw } from 'vue-router'
+import { type RouteRecordRaw } from 'vue-router'
+
+import { ROUTER_PERMISSION_FIELD } from '@/config/router'
+import permissionRoutes from '@/router/routes/permission'
 
 // 检测是否有 重名 / 重地址 路由，抛出异常提示
 export function detectRepeatRouteNameOrPath(routes: RouteRecordRaw[]) {
@@ -23,6 +26,7 @@ export function detectRepeatRouteNameOrPath(routes: RouteRecordRaw[]) {
       }
 
       if (route.name) names.push(route.name)
+
       if (route.path) paths.push((parent?.path || '') + route.path)
 
       if (route.children?.length) recursiveRoutes(route.children, route)
@@ -30,40 +34,6 @@ export function detectRepeatRouteNameOrPath(routes: RouteRecordRaw[]) {
   }
 
   recursiveRoutes(routes)
-}
-
-export function addRoutes(routes: RouteRecordRaw[]) {
-  detectRepeatRouteNameOrPath(routes)
-
-  const router = useRouter()
-
-  for (const route of routes) {
-    router.addRoute(route)
-  }
-}
-
-export function addRoute(route: RouteRecordRaw) {
-  addRoutes([route])
-}
-
-/**
- * 动态注入权限路由表，从配置好的路由表中取对应权限路由，再注册
- *
- * 优：关注点在路由表，有路由即有权限（初易后难）
- * 缺：
- *    1、用户登入登出需要反复 添加移除 权限路由表
- *    2、每次访问路由时，需检测该路由是否在路由表中
- *       如若不检测直接会跳404，用户会产生疑惑，为何之前进来有现在又无，以为系统出问题
- *       此情况出现在复制链接访问 或 浏览器书签点击访问
- *       如果没有权限，需要提示用户，并且跳回首页或指定页
- */
-export function transformRoutes(
-  routes: RouteRecordRaw[],
-  permissions: RouteRecordRaw[]
-): RouteRecordRaw[] {
-  const lastRoutes: RouteRecordRaw[] = []
-
-  return lastRoutes.concat(routes).concat(permissions)
 }
 
 /**
@@ -75,9 +45,8 @@ export function transformRoutes(
  * 缺：用户登入登出需要反复 开启改变 权限
  */
 export function setRoutePermissionByDynamic(
-  routes: RouteRecordRaw[],
   permissions: RouteRecordRaw[],
-  field?: string
+  routes: RouteRecordRaw[] = permissionRoutes
 ) {
   const _permissions = JSON.parse(JSON.stringify(permissions))
 
@@ -91,10 +60,10 @@ export function setRoutePermissionByDynamic(
        */
       if (route.path !== permission.path) continue
 
-      setPermission(route, true, field)
+      setPermission(route, true)
 
       if (permission.children?.length && route.children?.length) {
-        setRoutePermissionByDynamic(route.children, permission.children, field)
+        setRoutePermissionByDynamic(permission.children, route.children)
       }
 
       _permissions.splice(index, 1)
@@ -105,14 +74,11 @@ export function setRoutePermissionByDynamic(
 }
 
 export function setRoutePermissionByRole(
-  routes: RouteRecordRaw[],
   role: string,
-  field?: string,
-  parentRoute?: RouteRecordRaw
+  parentRoute?: RouteRecordRaw,
+  routes: RouteRecordRaw[] = permissionRoutes
 ) {
   for (const route of routes) {
-    let isSet = true
-
     /**
      * 如果当前路由配置角色，即指定角色才能访问；
      * 否则如果上层路由配置角色，即指定角色才能访问；
@@ -120,57 +86,47 @@ export function setRoutePermissionByRole(
      */
     const roles = (route.meta?.roles || parentRoute?.meta?.roles) as string[]
 
-    if (roles) {
-      isSet = roles.includes(role)
-    }
-
-    if (isSet) setPermission(route, true, field)
+    setPermission(route, !roles || roles.includes(role))
 
     if (route.children?.length) {
       setRoutePermissionByRole(
-        route.children,
         role,
-        field,
-        route.meta?.roles ? route : parentRoute
+        route.meta?.roles ? route : parentRoute,
+        route.children
       )
     }
   }
 }
 
 export function setRoutePermissionByAuth(
-  routes: RouteRecordRaw[],
-  field?: string
+  routes: RouteRecordRaw[] = permissionRoutes
 ) {
   for (const route of routes) {
-    setPermission(route, true, field)
+    setPermission(route, true)
 
     if (route.children?.length) {
-      setRoutePermissionByAuth(route.children, field)
+      setRoutePermissionByAuth(route.children)
     }
   }
 }
 
-export function resetRoutePermission(routes: RouteRecordRaw[], field?: string) {
-  for (const route of routes) {
-    setPermission(route, false, field)
-
-    if (route.children?.length) resetRoutePermission(route.children, field)
-  }
-}
-
-function setPermission(
-  route: RouteRecordRaw,
-  val: boolean,
-  field = 'permission'
+export function resetRoutePermission(
+  routes: RouteRecordRaw[] = permissionRoutes
 ) {
-  if (!route.meta) {
-    route.meta = {}
-  }
+  for (const route of routes) {
+    setPermission(route, false)
 
-  route.meta[field] = val
+    if (route.children?.length) resetRoutePermission(route.children)
+  }
 }
 
-export function findRouteByName(
+function setPermission(route: RouteRecordRaw, val: boolean) {
+  route.meta ??= {}
+
+  route.meta[ROUTER_PERMISSION_FIELD] = val
+}
+
+function findRouteByName(
   routes: RouteRecordRaw[],
   name: string
 ): RouteRecordRaw | undefined {
@@ -185,6 +141,6 @@ export function findRouteByName(
   }
 }
 
-export function hasRoutePermission(routes: RouteRecordRaw[], name: string) {
-  return Boolean(findRouteByName(routes, name)?.meta?.permission)
+export function hasRoutePermission(name: string) {
+  return Boolean(findRouteByName(permissionRoutes, name)?.meta?.permission)
 }

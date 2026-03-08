@@ -5,7 +5,7 @@
   <div>
     <button @click="user.logout">登出</button>
   </div>
-  <div v-if="user.hasRoutePermission(RouteName.settings.root)">
+  <div v-if="hasRoutePermission(RouteName.settings.root)">
     <button @click="toSettings">设置</button>
   </div>
   <div v-if="user.isLogin" class="m-10">
@@ -15,7 +15,7 @@
       更改用户名
     </button>
   </div>
-  <div v-if="user.hasRoutePermission(RouteName.user.root)">
+  <div v-if="hasRoutePermission(RouteName.user.root)">
     <button @click="toUser">用户</button>
   </div>
   <div class="mt-10">
@@ -85,6 +85,7 @@
 import { apiGetFile } from '@/api/common'
 import { RouteName } from '@/config/router'
 import { useUserStore } from '@/store/useUserStore'
+import { hasRoutePermission } from '@/utils/route'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()

@@ -30,14 +30,16 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 
 /* 生产环境 S */
 import { analyzer } from 'vite-bundle-analyzer'
-import { ViteImageOptimizer } from 'vite-plugin-image-optimizer'
 import compression from 'vite-plugin-compression'
+import { ViteImageOptimizer } from 'vite-plugin-image-optimizer'
+
+import vitePluginCdnOrder from './plugins/vite-plugin-cdn-order'
 /* 生产环境 E */
 
 /* PC 端 S */
 import {
-  ElementPlusResolver,
-  AntDesignVueResolver
+  AntDesignVueResolver,
+  ElementPlusResolver
 } from 'unplugin-vue-components/resolvers'
 /* PC 端 E */
 
@@ -58,195 +60,6 @@ const __APP_INFO__ = {
 
 const assetsDir = 'assets'
 
-const cdnUrl = 'https://unpkg.com'
-
-const cdnModules: any[] = [
-  // 基础库
-  {
-    name: 'vue',
-    var: 'Vue',
-    path: 'dist/vue.global.prod.js',
-    children: [
-      {
-        name: 'vue-router',
-        var: 'VueRouter',
-        path: 'dist/vue-router.global.prod.js'
-      },
-      { name: 'vue3-lazyload', var: 'VueLazyLoad', path: 'dist/index.min.js' },
-      {
-        name: 'pinia',
-        var: 'Pinia',
-        path: 'dist/pinia.iife.prod.js',
-        children: [
-          {
-            name: 'pinia-plugin-persistedstate',
-            var: 'piniaPluginPersistedstate',
-            path: 'dist/index.umd.js'
-          }
-        ]
-      }
-    ]
-  },
-  { name: 'axios', var: 'axios', path: 'dist/axios.min.js' },
-  { name: 'qs', var: 'Qs', path: 'dist/qs.js' },
-  { name: 'dompurify', var: 'Dompurify', path: 'dist/purify.min.js' },
-  // lodash-es 无法 umd，改用 lodash
-  { name: 'lodash', var: '_', path: 'lodash.min.js' }
-
-  // 其他常用库
-
-  // 有需要自行开启，下载源包放在 public/libs 目录下 S
-  // { name: 'dayjs', var: 'dayjs', path: 'dayjs.min.js' },
-  // { name: 'vue-i18n', var: 'VueI18n', path: 'dist/vue-i18n.global.prod.js' }
-  // 有需要自行开启，下载源包放在 public/libs 目录下 E
-]
-
-const dependenciesNames = Object.keys(dependencies)
-const includeCdnModules = getIncludeCdnModules(cdnModules)
-
-function getPkgVersion(pkgName: string) {
-  const deps = dependencies as Record<string, string> | undefined
-
-  return (deps?.[pkgName] || '').replace(/^[\^~]/, '')
-}
-
-function getIncludeCdnModules(arr: Record<string, any>[]) {
-  const res = []
-
-  arr.forEach(mod => {
-    if (dependenciesNames.includes(mod.name)) {
-      const obj: Record<string, any> = {
-        ...mod,
-        path:
-          mod.prodUrl ||
-          `${cdnUrl}/${mod.name}@${getPkgVersion(mod.name)}/${mod.path}`
-      }
-
-      if (obj.children?.length) {
-        obj.children = getIncludeCdnModules(obj.children)
-      }
-
-      res.push(obj)
-    }
-  })
-
-  return res
-}
-
-function getIncludeCdnNames(arr: Record<string, any>) {
-  const res = []
-
-  arr.forEach(mod => {
-    res.push(mod.name)
-
-    if (mod.children?.length) {
-      res.push(...getIncludeCdnNames(mod.children))
-    }
-  })
-
-  return res
-}
-
-function getIncludeCdnGlobals(arr: Record<string, any>) {
-  const obj = {}
-
-  arr.forEach(mod => {
-    obj[mod.name] = mod.var
-
-    if (mod.children?.length) {
-      Object.assign(obj, getIncludeCdnGlobals(mod.children))
-    }
-  })
-
-  return obj
-}
-
-function cdnPlugin() {
-  return {
-    name: 'cdn-plugin',
-    // 转换 index.html 中的标签，注入 onerror 逻辑
-    transformIndexHtml(html) {
-      return html.replace(
-        new RegExp(`<script.*?src="(./${assetsDir}/.*?\.js)"></script>`, 'g'),
-        (match, entryUrl) => {
-          if (!match) return match
-
-          return `<script>
-            const lastCdnModules = ${JSON.stringify(includeCdnModules)};
-
-            function rollbackLocal(dep) {
-              dep.path = \`/libs/\${dep.name}/\${dep.path.replace(/[^\\/]*\\//g, '')}\`;
-
-              if (dep.children && dep.children.length) {
-                dep.children.forEach(child => rollbackLocal(child))
-              }
-            }
-
-            function loadScript(dep) {
-              return new Promise((resolve, reject) => {
-                const script = document.createElement('script');
-
-                script.async = true;
-                script.src = dep.path;
-
-                script.setAttribute('crossorigin', 'anonymous');
-
-                script.onerror = () => {
-                  if (dep.path.startsWith('/libs')) {
-                    reject(new Error(\`❌ 本地加载\${dep.name}失败\`))
-                  }
-                  else {
-                    document.head.removeChild(script);
-
-                    rollbackLocal(dep)
-
-                    console.warn(\`⚠️ CDN加载\${dep.name}失败，回退本地: \${dep.path}\`);
-
-                    loadScript(dep).then(() => resolve()).catch(err => reject(err));
-                  }
-                };
-
-                script.onload = () => {
-                  // 加载子依赖
-                  if (dep.children && dep.children.length) {
-                    Promise.all(dep.children.map(child => loadScript(child)))
-                      .then(() => resolve())
-                      .catch(err => reject(err));
-                  } else {
-                    resolve()
-                  }
-                };
-
-                document.head.appendChild(script);
-              });
-            }
-
-            async function initApp() {
-              try {
-                // 加载所有依赖
-                await Promise.all(lastCdnModules.map(dep => loadScript(dep)))
-
-                // 加载入口脚本（适配开发/生产环境）
-                const entryScript = document.createElement('script');
-
-                entryScript.type = "module"
-                entryScript.src = '${entryUrl}';
-
-                document.head.appendChild(entryScript);
-                console.log('🚀 所有依赖加载完成，入口脚本已启动');
-              } catch (err) {
-                console.error('❌ 初始化失败:', err);
-              }
-            }
-
-            initApp();
-          </script>`
-        }
-      )
-    }
-  }
-}
-
 // https://vite.dev/config/
 export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
   const env = loadEnv(mode, process.cwd())
@@ -260,6 +73,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
     if (key.startsWith('VITE_')) {
       acc[`import.meta.env.${key}`] = JSON.stringify(value)
     }
+
     return acc
   }, {})
 
@@ -293,7 +107,71 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
   ]
 
   const prodPlugins: PluginOption[] = [
-    cdnPlugin(),
+    vitePluginCdnOrder({
+      assetsDir,
+      cdnUrl: 'https://unpkg1.com/',
+      modules: [
+        {
+          name: 'vue',
+          var: 'Vue',
+          cdnPath: 'vue@3.5.14/dist/vue.global.prod.js',
+          children: [
+            {
+              name: 'vue-router',
+              var: 'VueRouter',
+              cdnPath: 'vue-router@4.5.1/dist/vue-router.global.prod.js',
+              localPath: 'vue-router/vue-router.global.prod.js'
+            },
+            {
+              name: 'vue3-lazyload',
+              var: 'VueLazyLoad',
+              cdnPath: 'vue3-lazyload@0.3.8/dist/index.min.js',
+              localPath: 'vue3-lazyload/index.min.js'
+            },
+            {
+              name: 'pinia',
+              var: 'Pinia',
+              cdnPath: 'pinia@3.0.2/dist/pinia.iife.prod.js',
+              children: [
+                {
+                  name: 'pinia-plugin-persistedstate',
+                  var: 'piniaPluginPersistedstate',
+                  cdnPath:
+                    'pinia-plugin-persistedstate@4.7.1/dist/index.umd.js',
+                  localPath: 'pinia-plugin-persistedstate/index.umd.js'
+                }
+              ],
+              localPath: 'pinia/pinia.iife.prod.js'
+            }
+          ],
+          localPath: 'vue/vue.global.prod.js'
+        },
+        {
+          name: 'axios',
+          var: 'axios',
+          cdnPath: 'axios@1.9.0/dist/axios.min.js',
+          localPath: 'axios/axios.min.js'
+        },
+        {
+          name: 'qs',
+          var: 'Qs',
+          cdnPath: 'qs@6.14.0/dist/qs.js',
+          localPath: 'qs/qs.js'
+        },
+        {
+          name: 'dompurify',
+          var: 'Dompurify',
+          cdnPath: 'dompurify@3.3.1/dist/purify.min.js',
+          localPath: 'dompurify/purify.min.js'
+        },
+        {
+          name: 'lodash',
+          var: '_',
+          cdnPath: 'lodash@4.17.23/lodash.min.js',
+          localPath: 'lodash/lodash.min.js'
+        }
+      ]
+    }),
     ViteImageOptimizer({
       png: { quality: 60 },
       jpg: { quality: 70 },
@@ -365,23 +243,17 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       sourcemap: true,
       manifest: true,
       minify: 'terser',
+      terserOptions: { compress: { drop_console: true, drop_debugger: true } },
       cssMinify: 'lightningcss',
       // 分包核心配置，使用 rollup 将会 替代 assetsDir，需手动指定目录
       rollupOptions: {
-        external: getIncludeCdnNames(includeCdnModules),
         output: {
-          // 明确指定格式为 umd，确保全局变量生效
-          format: 'umd',
-          globals: getIncludeCdnGlobals(includeCdnModules),
           entryFileNames: `${assetsDir}/js/[name]-[hash].js`,
           chunkFileNames: `${assetsDir}/js/[name]-[hash].js`,
           assetFileNames: `${assetsDir}/[ext]/[name]-[hash].[ext]`
         }
       }
     },
-    define: { __APP_INFO__: JSON.stringify(__APP_INFO__), ...envMeta },
-    optimizeDeps: {
-      include: isDev ? getIncludeCdnNames(includeCdnModules) : []
-    }
+    define: { __APP_INFO__: JSON.stringify(__APP_INFO__), ...envMeta }
   }
 })

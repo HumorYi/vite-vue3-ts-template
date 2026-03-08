@@ -19,6 +19,8 @@ export enum RouterPermission {
 
 export const ROUTER_PERMISSION_TYPE = RouterPermission.ROLE
 
+export const ROUTER_PERMISSION_FIELD = 'permission'
+
 export const RouteName = {
   home: '',
   login: '',

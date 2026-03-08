@@ -1,18 +1,14 @@
-import { debounce as lodashDebounce, type DebouncedFunc } from 'lodash'
+import { useEventListener } from '@vueuse/core'
+import { debounce as lodashDebounce } from 'lodash'
 import type { Directive } from 'vue'
 
-interface ElType extends HTMLElement {
-  _debounce?: DebouncedFunc<any>
-}
-
 const debounce: Directive = {
-  mounted(el: ElType, { value, arg }: DirectiveBinding) {
-    el._debounce = lodashDebounce(value, arg ? Number(arg) : 300)
-
-    el.addEventListener('click', el._debounce)
-  },
-  beforeUnmount(el: ElType) {
-    el.removeEventListener('click', el?._debounce!.cancel)
+  mounted(el: HTMLElement, { value, arg }: DirectiveBinding) {
+    useEventListener(
+      el,
+      'click',
+      lodashDebounce(value, arg ? Number(arg) : 300)
+    )
   }
 }
 

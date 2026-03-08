@@ -1,7 +1,9 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import {
-  type RouteRecordRaw,
-  type RouteLocationAsRelativeGeneric
+  useRoute,
+  useRouter,
+  type RouteLocationAsRelativeGeneric,
+  type RouteRecordRaw
 } from 'vue-router'
 
 import {
@@ -9,29 +11,30 @@ import {
   RouteName,
   RouterPermission
 } from '@/config/router'
-import router from '@/router'
-import permission from '@/router/routes/permission'
+
 import { type User } from '@/types/api'
 
 import { apiGetUser, apiLogin, apiLogout, apiSetUser } from '@/api/user'
 
 import {
-  hasRoutePermission as hasRoutePermissionUtil,
   resetRoutePermission,
   setRoutePermissionByAuth,
   setRoutePermissionByDynamic,
   setRoutePermissionByRole
 } from '@/utils/route'
 
-import { getToken, setToken, removeToken } from '@/utils/token'
+import { getToken, removeToken, setToken } from '@/utils/token'
 
 export const useUserStore = defineStore('user', () => {
+  const router = useRouter()
+  const route = useRoute()
   const user = ref<User | null>(null)
 
   const isLogin = computed(() => !!user.value)
 
   async function login() {
-    const { name, query } = router.currentRoute.value
+
+    const { name, query } = route
 
     if (name === RouteName.home) return
 
@@ -44,11 +47,11 @@ export const useUserStore = defineStore('user', () => {
 
       await getUser()
 
-      // router.replace(
-      //   (query.redirect as RouteLocationAsRelativeGeneric) || {
-      //     name: RouteName.home
-      //   }
-      // )
+      router.replace(
+        (query.redirect as RouteLocationAsRelativeGeneric) || {
+          name: RouteName.home
+        }
+      )
     } catch (error) {
       throw error
     }
@@ -79,17 +82,16 @@ export const useUserStore = defineStore('user', () => {
       switch (ROUTER_PERMISSION_TYPE) {
         case RouterPermission.DYNAMIC.valueOf():
           setRoutePermissionByDynamic(
-            permission,
             user.value?.routes as unknown as RouteRecordRaw[]
           )
           break
 
         case RouterPermission.ROLE.valueOf():
-          setRoutePermissionByRole(permission, user.value?.role as string)
+          setRoutePermissionByRole(user.value?.role as string)
           break
 
         case RouterPermission.AUTH.valueOf():
-          setRoutePermissionByAuth(permission)
+          setRoutePermissionByAuth()
           break
 
         default:
@@ -112,10 +114,6 @@ export const useUserStore = defineStore('user', () => {
     user.value = { ...user.value, ...(userParam || apiParam) } as User
   }
 
-  function hasRoutePermission(name: string) {
-    return isLogin.value && hasRoutePermissionUtil(permission, name)
-  }
-
   function toLogin() {
     const { name, fullPath } = router.currentRoute.value
 
@@ -131,7 +129,7 @@ export const useUserStore = defineStore('user', () => {
 
     removeToken()
 
-    resetRoutePermission(permission)
+    resetRoutePermission()
   }
 
   return {
@@ -141,7 +139,6 @@ export const useUserStore = defineStore('user', () => {
     logout,
     getUser,
     setUser,
-    hasRoutePermission,
     toLogin
   }
 })

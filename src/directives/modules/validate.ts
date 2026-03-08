@@ -1,3 +1,4 @@
+import { useEventListener } from '@vueuse/core'
 import type { Directive } from 'vue'
 
 const validate: Directive = {
@@ -6,7 +7,7 @@ const validate: Directive = {
       throw 'callback must be a function'
     }
 
-    el.addEventListener('blur', e => {
+    useEventListener(el, 'blur', e => {
       const hasValue = value((e.target as HTMLInputElement).value)
 
       el.classList.add(hasValue ? 'is-valid' : 'is-invalid')
