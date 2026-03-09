@@ -1,4 +1,14 @@
 <template>
+  <div>vue3-lazyload</div>
+  <div class="img-container">
+    <img
+      v-lazy="
+        'https://ts3.tc.mm.bing.net/th/id/ODL.1897915b9c761360e188031fa11df030?w=197&h=112'
+      "
+      alt=""
+    />
+  </div>
+
   <div v-if="!user.isLogin">
     <button @click="toLogin">登录</button>
   </div>

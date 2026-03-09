@@ -30,7 +30,9 @@ $duration-spinner: 1.2s;
 }
 
 @mixin g-spin($isLeft: true) {
-  $dir: if(sass($isLeft): 1; else: -1);
+  $dir: if(
+    sass($isLeft): 1; else: -1
+  );
 
   from {
     transform: rotate(0);

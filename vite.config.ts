@@ -202,11 +202,11 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       open: false,
       cors: true,
       proxy: {
-        [env.VITE_APP_BASE_API]: {
+        [env.VITE_APP_API_BASE]: {
           changeOrigin: true,
           target: env.VITE_APP_API_URL,
           rewrite: (path: string) =>
-            path.replace(new RegExp('^' + env.VITE_APP_BASE_API), '')
+            path.replace(new RegExp('^' + env.VITE_APP_API_BASE), '')
           // secure: false, // https接口需配置
           // ws: true, // 支持 websocket
         }

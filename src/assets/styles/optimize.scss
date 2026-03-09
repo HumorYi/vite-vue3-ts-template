@@ -1,0 +1,8 @@
+// position: fixed / absolute; 抖动时需加此类，启用硬件加速，即 gpu
+
+.optimize {
+  &-gpu {
+    will-change: transform;
+    transform: translateZ(0);
+  }
+}

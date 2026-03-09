@@ -1,2 +1,1 @@
-export function initDev() {
-}
+export function initDev() {}

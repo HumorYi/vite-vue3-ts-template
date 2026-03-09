@@ -29,8 +29,7 @@ router.beforeEach(async (to, _from) => {
   // permission: true，表示 有权限
   // auth: true，表示 需要认证，即登录用户信息
   // 需要访问权限 或者 用户信息
-  // if (!userStore.isLogin && (meta.permission === false || meta.auth)) {
-  if (!userStore.isLogin) {
+  if (!userStore.isLogin && (meta.permission === false || meta.auth)) {
     await userStore.getUser()
 
     // 未登录，跳转登录页
