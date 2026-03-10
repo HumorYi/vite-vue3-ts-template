@@ -42,7 +42,7 @@ function initRouteName(obj: JsonObject, parentKey?: string) {
   for (const key in obj) {
     if (typeof obj[key] === 'string') {
       obj[key] ??=
-        capitalize(parentKey ?? key) +
+        capitalize(parentKey || key) +
         (parentKey && key === 'root' ? capitalize(key) : '')
 
       continue

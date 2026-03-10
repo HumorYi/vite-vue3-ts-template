@@ -9,7 +9,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     RouterLink: typeof import('vue-router')['RouterLink']
-    RouterLinkPermission: typeof import('./../components/common/RouterLinkPermission.vue')['default']
+    RouterLinkPermission: typeof import('./../components/RouterLinkPermission.vue')['default']
     RouterView: typeof import('vue-router')['RouterView']
   }
 }

@@ -232,8 +232,8 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       preprocessorOptions: {
         scss: {
           additionalData: `
-            @use "@/assets/styles/variables.scss" as variables;
-            @use "@/assets/styles/mixins/index.scss" as mixins;
+            @use "@/styles/variables.scss" as variables;
+            @use "@/styles/mixins/index.scss" as mixins;
           `
         }
       },

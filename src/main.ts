@@ -5,7 +5,7 @@ import VueLazyLoad from 'vue3-lazyload'
 
 import '@unocss/reset/normalize.css'
 import 'virtual:uno.css'
-import './assets/styles/index.scss'
+import './styles/index.scss'
 
 import App from './App.vue'
 import directives from './directives'

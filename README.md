@@ -74,7 +74,6 @@
       export const RouteName = {
         // 单个路由
         home: '', // Home
-        login: '',
         // 嵌套路由
         settings: {
           root: '', // 根路由，名称为 父路由名 Settings
@@ -82,19 +81,7 @@
           advance: { // 嵌套子路由
             root: '', // 根路由，名称为 父路由名 SettingsAdvance
             base: '', // 子路由，名称为 父路由名 + 子路由名，SettingsAdvanceBase
-            other: ''
           }
-        },
-        user: {
-          root: '',
-          base: '',
-          advance: ''
-        },
-        // error 错误页不做处理
-        error: {
-          403: '',
-          404: '',
-          405: ''
         }
       }
 
@@ -102,17 +89,14 @@
       function initRouteName(obj: JsonObject, parentKey?: string) {
         for (const key in obj) {
           if (typeof obj[key] === 'string') {
-            if (parentKey) {
-              obj[key] =
-                capitalize(parentKey) + (key === 'root' ? '' : capitalize(key))
-            } else {
-              obj[key] = capitalize(key)
-            }
+            obj[key] ??=
+              capitalize(parentKey || key) +
+              (parentKey && key === 'root' ? capitalize(key) : '')
 
             continue
           }
 
-          if (key !== 'error') initRouteName(obj[key] as JsonObject, key)
+          initRouteName(obj[key] as JsonObject, key)
         }
       }
 
@@ -151,6 +135,8 @@
 │   │   └── user.ts
 │   ├── App.vue                               入口组件
 │   ├── assets                                资源
+│   │   └── font
+│   │   └── icon
 │   │   └── images
 │   │       ├── error-page
 │   │       │   ├── 403.png
@@ -161,19 +147,9 @@
 │   │   │   │   └── loading.gif
 │   │       └── loading
 │   │           └── loading.gif
-│   │   └── styles                            样式表
-│   │       ├── base.scss
-│   │       ├── common.scss
-│   │       ├── index.scss
-│   │       ├── loading.scss
-│   │       ├── mixins
-│   │       │   └── index.scss
-│   │       └── variables.scss
 │   ├── components                            全局组件
-│   │   ├── common                            公共组件
-│   │   │   └── RouterLinkPermission.vue      权限 router-link，有权限则显示
-│   │   ├── layouts                           布局组件
-│   │   └── modules                           业务组件
+│   │   │── RouterLinkPermission.vue          权限 router-link，有权限则显示
+│   │   └── modules                           模块组件
 │   ├── composables                           composition 函数
 │   │   └── useApiOption                      api signal 钩子，组件卸载中断请求
 │   ├── config                                自定义配置
@@ -209,11 +185,9 @@
 │   │   │   ├── res-download.ts               响应文件下载
 │   │   │   └── res-timeout.ts                响应超时
 │   │   └── index.ts
+│   │── layouts                               布局组件
 │   └── pages                                 页面目录
 │       ├── error                             错误页（测试）
-│       │   ├── 403.vue
-│       │   ├── 404.vue
-│       │   ├── 500.vue
 │       │   └── Index.vue
 │       ├── home                              首页（测试：权限路由）
 │       │   └── Index.vue
@@ -243,6 +217,15 @@
 │   │       └── permission.ts                 权限路由，需要权限
 │   ├── store                                 pinia store
 │   │   └── useUserStore.ts                   用户 store
+│   ├── styles                                样式表
+│   │   ├── base.scss
+│   │   ├── base.scss
+│   │   ├── common.scss
+│   │   ├── index.scss
+│   │   ├── loading.scss
+│   │   ├── mixins
+│   │   │   └── index.scss
+│   │   └── variables.scss
 │   ├── types                                 类型定义
 │   │   ├── api.ts                            同 api 目录
 │   │       └── user.ts
