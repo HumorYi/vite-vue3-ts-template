@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts" name="User">
-import { RouteName } from '@/config/router'
+import { RouteName } from '@/config/route'
 </script>
 
 <style lang="sass" scoped></style>

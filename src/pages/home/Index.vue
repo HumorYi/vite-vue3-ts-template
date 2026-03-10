@@ -105,7 +105,7 @@ import User from './components/User.vue'
 
 import { apiGetFile } from '@/api/common'
 import { useApiOption } from '@/composables/useApiOption'
-import { RouteName } from '@/config/router'
+import { RouteName } from '@/config/route'
 import { useUserStore } from '@/store/useUserStore'
 import { hasRoutePermission } from '@/utils/route'
 

@@ -22,7 +22,7 @@
 </template>
 
 <script setup lang="ts" name="Advance">
-import { RouteName } from '@/config/router'
+import { RouteName } from '@/config/route'
 </script>
 
 <style lang="sass" scoped></style>

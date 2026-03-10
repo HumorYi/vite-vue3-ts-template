@@ -8,7 +8,9 @@
 
     <div class="not-detail">
       <h2>{{ code }}</h2>
+
       <h4>{{ tip }}</h4>
+
       <button @click="toHome">
         {{ btn }}
       </button>
@@ -17,16 +19,13 @@
 </template>
 
 <script setup lang="ts" name="ErrorPage">
-import { useRouter } from 'vue-router'
 import { getErrorPageImageUrl } from '@/utils/resource'
-
-const { code, tip, btn } = defineProps<{
-  code: number
-  tip: string
-  btn: string
-}>()
+import { useRoute, useRouter } from 'vue-router'
 
 const router = useRouter()
+const route = useRoute()
+
+const { code, tip, btn } = route.meta
 
 const toHome = () => router.push('/')
 </script>

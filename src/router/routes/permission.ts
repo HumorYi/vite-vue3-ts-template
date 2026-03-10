@@ -5,7 +5,7 @@
  * 把属于前端相关字段留在路由表中，后端只存储对应标识字段，例如：路由名称 或 路径
  */
 
-import { RouteName } from '@/config/router'
+import { RouteName } from '@/config/route'
 import { UserRole } from '@/config/user'
 import { resetRoutePermission } from '@/utils/route'
 import type { RouteRecordRaw } from 'vue-router'

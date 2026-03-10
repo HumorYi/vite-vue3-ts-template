@@ -20,9 +20,11 @@ export function handleResErrorCode(code: number) {
     return
   }
 
-  if (errorRoutes.some(route => route.name === String(code))) {
+  const codePath = `/${code}`
+
+  if (errorRoutes.some(route => route.path === codePath)) {
     router.push({
-      name: String(code),
+      path: codePath,
       query: { redirect: router.currentRoute.value.fullPath }
     })
 

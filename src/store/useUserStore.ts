@@ -10,7 +10,7 @@ import {
   ROUTER_PERMISSION_TYPE,
   RouteName,
   RouterPermission
-} from '@/config/router'
+} from '@/config/route'
 
 import { type User } from '@/types/api/user'
 

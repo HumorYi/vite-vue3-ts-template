@@ -5,7 +5,6 @@
 
 import { type RouteRecordRaw } from 'vue-router'
 
-import { ROUTER_PERMISSION_FIELD } from '@/config/router'
 import permissionRoutes from '@/router/routes/permission'
 
 // 检测是否有 重名 / 重地址 路由，抛出异常提示
@@ -123,7 +122,7 @@ export function resetRoutePermission(
 function setPermission(route: RouteRecordRaw, val: boolean) {
   route.meta ??= {}
 
-  route.meta[ROUTER_PERMISSION_FIELD] = val
+  route.meta.permission = val
 }
 
 function findRouteByName(

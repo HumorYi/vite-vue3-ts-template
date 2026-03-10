@@ -1,4 +1,4 @@
-import { RouteName } from '@/config/router'
+import { RouteName } from '@/config/route'
 import type { RouteRecordRaw } from 'vue-router'
 
 const routes: RouteRecordRaw[] = [
