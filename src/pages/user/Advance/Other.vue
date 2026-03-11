@@ -1,5 +1,5 @@
 <template>
-  <div class="base">高级设置 - 基础</div>
+  <div class="other">高级用户 - 其它</div>
 </template>
 
 <script setup lang="ts"></script>

@@ -18,7 +18,7 @@
   </div>
 </template>
 
-<script setup lang="ts" name="ErrorPage">
+<script setup lang="ts">
 import { getErrorPageImageUrl } from '@/utils/resource'
 import { useRoute, useRouter } from 'vue-router'
 

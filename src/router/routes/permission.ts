@@ -71,9 +71,27 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: 'advance',
-        name: RouteName.user.advance,
-        component: () => import('@/pages/user/Advance.vue'),
-        meta: { menuName: '高级用户', roles: [UserRole.ADMIN] }
+        component: () => import('@/pages/user/Advance/Index.vue'),
+        meta: { menuName: '高级用户', roles: [UserRole.ADMIN] },
+        children: [
+          {
+            path: '',
+            name: RouteName.user.advance.root,
+            component: () => import('@/pages/user/Advance/Home.vue')
+          },
+          {
+            path: 'base',
+            name: RouteName.user.advance.base,
+            component: () => import('@/pages/user/Advance/Base.vue'),
+            meta: { menuName: '高级用户 - 基础' }
+          },
+          {
+            path: 'other',
+            name: RouteName.user.advance.other,
+            component: () => import('@/pages/user/Advance/Other.vue'),
+            meta: { menuName: '高级用户 - 其它' }
+          }
+        ]
       }
     ]
   }

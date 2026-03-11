@@ -1,20 +1,20 @@
 <template>
   <div class="advance">
-    <h2>高级设置</h2>
+    <h2>高级用户</h2>
 
     <RouterLinkPermission
-      :to="{ name: RouteName.settings.advance.root }"
-      text="高级设置中心"
+      :to="{ name: RouteName.user.advance.root }"
+      text="高级用户中心"
     />
 
     <RouterLinkPermission
-      :to="{ name: RouteName.settings.advance.base }"
-      text="高级设置 - 基础"
+      :to="{ name: RouteName.user.advance.base }"
+      text="高级用户 - 基础"
     />
 
     <RouterLinkPermission
-      :to="{ name: RouteName.settings.advance.other }"
-      text="高级设置 - 其它"
+      :to="{ name: RouteName.user.advance.other }"
+      text="高级用户 - 其它"
     />
 
     <router-view />

@@ -87,7 +87,12 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
     }),
     Components({
       deep: true,
-      dirs: ['src/components'],
+      directoryAsNamespace: true,
+      dirs: [
+        'src/components/business/',
+        'src/components/common/',
+        'src/layouts/'
+      ],
       dts: 'src/dts/components.d.ts',
       resolvers: [ElementPlusResolver(), AntDesignVueResolver()]
     }),
@@ -203,12 +208,12 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       cors: true,
       proxy: {
         [env.VITE_APP_API_BASE]: {
+          // secure: false, // https接口需配置
+          // ws: true, // 支持 websocket
           changeOrigin: true,
           target: env.VITE_APP_API_URL,
           rewrite: (path: string) =>
             path.replace(new RegExp('^' + env.VITE_APP_API_BASE), '')
-          // secure: false, // https接口需配置
-          // ws: true, // 支持 websocket
         }
       },
       hmr: {
@@ -232,8 +237,8 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       preprocessorOptions: {
         scss: {
           additionalData: `
-            @use "@/styles/variables.scss" as variables;
-            @use "@/styles/mixins/index.scss" as mixins;
+            @use "@/assets/styles/variables.scss" as variables;
+            @use "@/assets/styles/mixins/index.scss" as mixins;
           `
         }
       },

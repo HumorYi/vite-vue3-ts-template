@@ -23,7 +23,11 @@ export const RouteName = {
   user: {
     root: '',
     base: '',
-    advance: ''
+    advance: {
+      root: '',
+      base: '',
+      other: ''
+    }
   }
 }
 
@@ -38,17 +42,19 @@ export enum RouterPermission {
 
 export const ROUTER_PERMISSION_TYPE = RouterPermission.ROLE
 
-function initRouteName(obj: JsonObject, parentKey?: string) {
+function initRouteName(obj: JsonObject, parentKey: string = '') {
   for (const key in obj) {
+    const currentKey = capitalize(key)
+
     if (typeof obj[key] === 'string') {
-      obj[key] ??=
-        capitalize(parentKey || key) +
-        (parentKey && key === 'root' ? capitalize(key) : '')
+      if (!obj[key]) {
+        obj[key] = parentKey + (key === 'root' ? '' : currentKey)
+      }
 
       continue
     }
 
-    initRouteName(obj[key] as JsonObject, key)
+    initRouteName(obj[key] as JsonObject, parentKey + currentKey)
   }
 }
 

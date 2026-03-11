@@ -98,7 +98,7 @@
   </div>
 </template>
 
-<script lang="ts" setup name="Home">
+<script lang="ts" setup>
 import { useRouter } from 'vue-router'
 
 import User from './components/User.vue'

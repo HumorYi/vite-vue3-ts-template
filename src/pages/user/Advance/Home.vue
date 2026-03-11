@@ -1,9 +1,9 @@
 <template>
-  <div class="advance">
+  <div class="home">
     {{ $route.meta.menuName }}
   </div>
 </template>
 
-<script setup lang="ts" name="Advance"></script>
+<script setup lang="ts"></script>
 
 <style lang="sass" scoped></style>

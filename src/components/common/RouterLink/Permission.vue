@@ -4,9 +4,9 @@
   </router-link>
 </template>
 
-<script setup lang="ts" name="RouterLinkPermission">
-import { type RouteLocationAsRelativeGeneric } from 'vue-router'
+<script setup lang="ts">
 import { hasRoutePermission } from '@/utils/route'
+import { type RouteLocationAsRelativeGeneric } from 'vue-router'
 
 const props = defineProps<{
   to: RouteLocationAsRelativeGeneric

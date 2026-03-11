@@ -21,7 +21,7 @@
   </div>
 </template>
 
-<script setup lang="ts" name="Settings">
+<script setup lang="ts">
 import { RouteName } from '@/config/route'
 </script>
 
