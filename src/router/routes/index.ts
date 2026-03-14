@@ -1,10 +1,12 @@
-import { detectRepeatRouteNameOrPath } from '@/utils/route'
 import type { RouteRecordRaw } from 'vue-router'
+
+import auth from './auth'
 import base from './base'
-import permission from './permission'
 import error from './error'
 
-const routes: RouteRecordRaw[] = [...base, ...permission, ...error]
+import { detectRepeatRouteNameOrPath } from '@/utils/route'
+
+const routes: RouteRecordRaw[] = [...base, ...auth, ...error]
 
 detectRepeatRouteNameOrPath(routes)
 

@@ -45,16 +45,10 @@ import {
 
 /* 插件 E */
 
-import {
-  dependencies,
-  devDependencies,
-  engines,
-  name,
-  version
-} from './package.json'
+import { dependencies, devDependencies, name, version } from './package.json'
 
 const __APP_INFO__ = {
-  pkg: { dependencies, devDependencies, engines, name, version },
+  pkg: { dependencies, devDependencies, name, version },
   buildTimestamp: Date.now()
 }
 
@@ -68,14 +62,14 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
   const isAnalyze = mode === 'analyze'
   const isProd = mode === 'production' || isAnalyze
 
-  const envMeta = Object.entries(env).reduce((acc, [key, value]) => {
+  const envMeta: Record<string, string> = {}
+
+  Object.entries(env).forEach(([key, value]) => {
     // 只处理 VITE_ 开头的环境变量（Vite 仅暴露这类变量）
     if (key.startsWith('VITE_')) {
-      acc[`import.meta.env.${key}`] = JSON.stringify(value)
+      envMeta[`import.meta.env.${key}`] = JSON.stringify(value)
     }
-
-    return acc
-  }, {})
+  })
 
   const plugins: PluginOption[] = [
     vue(),
@@ -88,11 +82,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
     Components({
       deep: true,
       directoryAsNamespace: true,
-      dirs: [
-        'src/components/business/',
-        'src/components/common/',
-        'src/layouts/'
-      ],
+      dirs: ['src/components/', 'src/layouts/'],
       dts: 'src/dts/components.d.ts',
       resolvers: [ElementPlusResolver(), AntDesignVueResolver()]
     }),
@@ -114,7 +104,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
   const prodPlugins: PluginOption[] = [
     vitePluginCdnOrder({
       assetsDir,
-      cdnUrl: 'https://unpkg1.com/',
+      cdnUrl: 'https://unpkg.com/',
       modules: [
         {
           name: 'vue',
@@ -168,12 +158,6 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
           var: 'Dompurify',
           cdnPath: 'dompurify@3.3.1/dist/purify.min.js',
           localPath: 'dompurify/purify.min.js'
-        },
-        {
-          name: 'lodash',
-          var: '_',
-          cdnPath: 'lodash@4.17.23/lodash.min.js',
-          localPath: 'lodash/lodash.min.js'
         }
       ]
     }),

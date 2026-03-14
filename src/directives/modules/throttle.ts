@@ -1,7 +1,7 @@
 import type { Directive } from 'vue'
 
 import { useEventListener } from '@vueuse/core'
-import { throttle as lodashThrottle } from 'lodash'
+import { throttle as lodashThrottle } from 'lodash-es'
 
 const throttle: Directive = {
   mounted(el: HTMLElement, { value, arg }: DirectiveBinding) {

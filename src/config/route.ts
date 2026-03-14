@@ -6,7 +6,7 @@
  */
 
 import type { JsonObject } from '@/types/json'
-import { capitalize } from 'lodash'
+import { capitalize } from 'lodash-es'
 
 export const RouteName = {
   home: '',

@@ -1,59 +1,84 @@
-import { clamp } from 'lodash'
+import { useEventListener } from '@vueuse/core'
+import { clamp } from 'lodash-es'
 
 export function draggable(el: HTMLElement, container?: HTMLElement) {
-  const parent = (container || document.body) as HTMLElement
-  let originalX = 0
-  let originalY = 0
+  let isDragging = false
   let mouseX = 0
   let mouseY = 0
-  let elRect: DOMRect
-  let parentRect: DOMRect
+  let minX = 0
+  let maxX = 0
+  let minY = 0
+  let maxY = 0
+  let initTranslateX = 0
+  let initTranslateY = 0
 
-  //减少重绘和回流
-  window.requestAnimationFrame(() => {
-    el.style.cursor = 'move'
-    el.style.position = 'absolute'
-    el.style.userSelect = 'none'
-  })
+  function initStyle() {
+    window.requestAnimationFrame(() => {
+      el.style.cursor = 'move'
+      el.style.userSelect = 'none'
+
+      el.style.transform ??= 'translate(0, 0)'
+    })
+  }
 
   function onmousedown(e: MouseEvent) {
-    elRect = el.getBoundingClientRect()
-    parentRect = parent.getBoundingClientRect()
+    e.preventDefault()
 
-    originalX = el.offsetLeft
-    originalY = el.offsetTop
+    if (!isMouseLeft(e) || isDragging) return
+
+    const elRect = el.getBoundingClientRect()
+
+    // 解析当前 transform 的偏移值（兼容初始已有偏移的情况）
+    const matrix = new DOMMatrix(window.getComputedStyle(el).transform)
+    initTranslateX = matrix.e
+    initTranslateY = matrix.f
 
     mouseX = e.clientX
     mouseY = e.clientY
+
+    if (container) {
+      const parentRect = container.getBoundingClientRect()
+
+      maxX = parentRect.width - elRect.width
+      maxY = parentRect.height - elRect.height
+    } else {
+      const { offsetLeft, offsetTop } = el
+      const { clientWidth, clientHeight, scrollLeft, scrollTop } =
+        document.documentElement
+
+      minX = -offsetLeft + scrollLeft
+      minY = -offsetTop + scrollTop
+      maxX = clientWidth - elRect.width - offsetLeft + scrollLeft
+      maxY = clientHeight - elRect.height - offsetTop + scrollTop
+    }
+
+    isDragging = true
 
     document.addEventListener('mousemove', onmousemove)
     document.addEventListener('mouseup', onmouseup)
   }
 
   function onmousemove(e: MouseEvent) {
-    const diffX = e.clientX - mouseX
-    const diffY = e.clientY - mouseY
+    const x = clamp(initTranslateX + e.clientX - mouseX, minX, maxX)
+    const y = clamp(initTranslateY + e.clientY - mouseY, minY, maxY)
 
-    const left = originalX + diffX
-    const top = originalY + diffY
-
-    const leftMax = parentRect.width - elRect.width
-    const leftMin = 0
-
-    const topMax = parentRect.height - elRect.height
-    const topMin = 0
-
-    //减少重绘和回流
     window.requestAnimationFrame(() => {
-      el.style.left = clamp(left, leftMin, leftMax) + 'px'
-      el.style.top = clamp(top, topMin, topMax) + 'px'
+      el.style.transform = `translate(${x}px, ${y}px)`
     })
   }
 
   function onmouseup() {
+    isDragging = false
+
     document.removeEventListener('mousemove', onmousemove)
     document.removeEventListener('mouseup', onmouseup)
   }
 
-  el.addEventListener('mousedown', onmousedown)
+  initStyle()
+
+  useEventListener(el, 'mousedown', onmousedown)
+}
+
+export function isMouseLeft(e: Event | TouchEvent) {
+  return e.type === 'mousedown' && 'button' in e && e.button === 0
 }

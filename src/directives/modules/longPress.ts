@@ -1,3 +1,4 @@
+import { isMouseLeft } from '@/utils/dom'
 import { useEventListener, useTimeout } from '@vueuse/core'
 import type { Directive } from 'vue'
 
@@ -15,7 +16,7 @@ const longPress: Directive = {
 
     // 创建计时器（ 2秒后执行函数 ）
     const handle = (e: MouseEvent | TouchEvent) => {
-      if (e.type === 'mousedown' && 'button' in e && e.button !== 0) return
+      if (!isMouseLeft(e)) return
 
       start()
     }

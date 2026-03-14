@@ -58,6 +58,6 @@ const toHome = () => router.push('/')
       font-size: 19px
       font-weight: normal
 
-    .button
+    button
       width: 100px
 </style>

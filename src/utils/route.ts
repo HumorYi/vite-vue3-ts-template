@@ -5,34 +5,87 @@
 
 import { type RouteRecordRaw } from 'vue-router'
 
+import { ROUTER_PERMISSION_TYPE, RouterPermission } from '@/config/route'
 import permissionRoutes from '@/router/routes/permission'
 
 // 检测是否有 重名 / 重地址 路由，抛出异常提示
 export function detectRepeatRouteNameOrPath(routes: RouteRecordRaw[]) {
-  const names: (string | symbol)[] = []
   const paths: string[] = []
+  const names: (string | symbol)[] = []
 
-  function recursiveRoutes(routes: RouteRecordRaw[], parent?: RouteRecordRaw) {
+  function recursiveRoutes(routes: RouteRecordRaw[], parentPath: string = '') {
     for (const route of routes) {
-      if (route.name && names.includes(route.name)) {
-        console.error(route)
-        throw new Error('有重复路由名称')
+      const routePath =
+        parentPath +=
+        (route.path?.startsWith('/') ? '' : '/') +
+        (route.path ?? '')
+
+      if (route.path) {
+        if (paths.includes(routePath)) {
+          console.error(route)
+          throw new Error('有重复路由地址')
+        }
+
+        paths.push(routePath)
       }
 
-      if (route.path && paths.includes(route.path)) {
-        console.error(route)
-        throw new Error('有重复路由地址')
+      if (route.name) {
+        if (names.includes(route.name)) {
+          console.error(route)
+          throw new Error('有重复路由名称')
+        }
+
+        names.push(route.name)
       }
 
-      if (route.name) names.push(route.name)
-
-      if (route.path) paths.push((parent?.path || '') + route.path)
-
-      if (route.children?.length) recursiveRoutes(route.children, route)
+      if (route.children?.length) recursiveRoutes(route.children, routePath)
     }
   }
 
   recursiveRoutes(routes)
+}
+
+export function setRoutePermission(val: any) {
+  switch (ROUTER_PERMISSION_TYPE) {
+    case RouterPermission.DYNAMIC.valueOf():
+      setRoutePermissionByDynamic(val as RouteRecordRaw[])
+      break
+
+    case RouterPermission.ROLE.valueOf():
+      setRoutePermissionByRole(val as string)
+      break
+
+    case RouterPermission.AUTH.valueOf():
+      setRoutePermissionByAuth()
+      break
+
+    default:
+      break
+  }
+}
+
+export function resetRoutePermission(
+  routes: RouteRecordRaw[] = permissionRoutes
+) {
+  for (const route of routes) {
+    setPermission(route, false)
+
+    if (route.children?.length) resetRoutePermission(route.children)
+  }
+}
+
+export function hasRoutePermission(name: string) {
+  return Boolean(findRouteByName(permissionRoutes, name)?.meta?.permission)
+}
+
+export function setRouteAuth(routes: RouteRecordRaw[], val: boolean = true) {
+  for (const route of routes) {
+    route.meta ??= {}
+
+    route.meta.auth = val
+
+    if (route.children?.length) setRouteAuth(route.children)
+  }
 }
 
 /**
@@ -43,7 +96,7 @@ export function detectRepeatRouteNameOrPath(routes: RouteRecordRaw[]) {
  *    2、当用户 复制链接访问 或 浏览器书签点击访问时，只需检测是否有权限，并做对应处理
  * 缺：用户登入登出需要反复 开启改变 权限
  */
-export function setRoutePermissionByDynamic(
+function setRoutePermissionByDynamic(
   permissions: RouteRecordRaw[],
   routes: RouteRecordRaw[] = permissionRoutes
 ) {
@@ -72,7 +125,7 @@ export function setRoutePermissionByDynamic(
   }
 }
 
-export function setRoutePermissionByRole(
+function setRoutePermissionByRole(
   role: string,
   parentRoute?: RouteRecordRaw,
   routes: RouteRecordRaw[] = permissionRoutes
@@ -97,25 +150,13 @@ export function setRoutePermissionByRole(
   }
 }
 
-export function setRoutePermissionByAuth(
-  routes: RouteRecordRaw[] = permissionRoutes
-) {
+function setRoutePermissionByAuth(routes: RouteRecordRaw[] = permissionRoutes) {
   for (const route of routes) {
     setPermission(route, true)
 
     if (route.children?.length) {
       setRoutePermissionByAuth(route.children)
     }
-  }
-}
-
-export function resetRoutePermission(
-  routes: RouteRecordRaw[] = permissionRoutes
-) {
-  for (const route of routes) {
-    setPermission(route, false)
-
-    if (route.children?.length) resetRoutePermission(route.children)
   }
 }
 
@@ -138,8 +179,4 @@ function findRouteByName(
       if (result) return result
     }
   }
-}
-
-export function hasRoutePermission(name: string) {
-  return Boolean(findRouteByName(permissionRoutes, name)?.meta?.permission)
 }

@@ -2,26 +2,16 @@ import { acceptHMRUpdate, defineStore } from 'pinia'
 import {
   useRoute,
   useRouter,
-  type RouteLocationAsRelativeGeneric,
-  type RouteRecordRaw
+  type RouteLocationAsRelativeGeneric
 } from 'vue-router'
 
-import {
-  ROUTER_PERMISSION_TYPE,
-  RouteName,
-  RouterPermission
-} from '@/config/route'
+import { RouteName } from '@/config/route'
 
 import { type User } from '@/types/api/user'
 
 import { apiGetUser, apiLogin, apiLogout, apiSetUser } from '@/api/user'
 
-import {
-  resetRoutePermission,
-  setRoutePermissionByAuth,
-  setRoutePermissionByDynamic,
-  setRoutePermissionByRole
-} from '@/utils/route'
+import { resetRoutePermission, setRoutePermission } from '@/utils/route'
 
 import type { ApiOption } from '@/types/http'
 import { getToken, removeToken, setToken } from '@/utils/token'
@@ -64,7 +54,7 @@ export const useUserStore = defineStore('user', () => {
 
       if (!res?.success) return
 
-      reset()
+      clear()
     } catch (error) {
       throw error
     }
@@ -80,24 +70,7 @@ export const useUserStore = defineStore('user', () => {
 
       user.value = res.data
 
-      switch (ROUTER_PERMISSION_TYPE) {
-        case RouterPermission.DYNAMIC.valueOf():
-          setRoutePermissionByDynamic(
-            user.value?.routes as unknown as RouteRecordRaw[]
-          )
-          break
-
-        case RouterPermission.ROLE.valueOf():
-          setRoutePermissionByRole(user.value?.role as string)
-          break
-
-        case RouterPermission.AUTH.valueOf():
-          setRoutePermissionByAuth()
-          break
-
-        default:
-          break
-      }
+      setRoutePermission(res.data.role)
     } catch (error) {
       throw error
     }
@@ -130,12 +103,12 @@ export const useUserStore = defineStore('user', () => {
 
     if (name === RouteName.login) return
 
-    reset()
+    clear()
 
     router.push({ name: RouteName.login, query: { redirect: fullPath } })
   }
 
-  function reset() {
+  function clear() {
     user.value = null
 
     removeToken()
