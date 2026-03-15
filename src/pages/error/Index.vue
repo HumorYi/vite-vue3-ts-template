@@ -30,34 +30,41 @@ const { code, tip, btn } = route.meta
 const toHome = () => router.push('/')
 </script>
 
-<style scoped lang="sass">
-.not-container
-  display: flex
-  align-items: center
-  justify-content: center
-  width: 100%
-  height: 90vh
+<style scoped lang="scss">
+.not-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 90vh;
 
-  .not-img
-    margin-right: 120px
+  .not-img {
+    margin-right: 120px;
+  }
 
-  .not-detail
-    display: flex
-    flex-direction: column
+  .not-detail {
+    display: flex;
+    flex-direction: column;
+  }
 
-    h2,
-    h4
-      padding: 0
-      margin: 0
+  h2,
+  h4 {
+    margin: 0;
+    padding: 0;
+  }
 
-    h2
-      font-size: 60px
+  h2 {
+    font-size: 60px;
+  }
 
-    h4
-      margin: 30px 0 20px
-      font-size: 19px
-      font-weight: normal
+  h4 {
+    margin: 30px 0 20px;
+    font-size: 19px;
+    font-weight: normal;
+  }
 
-    button
-      width: 100px
+  button {
+    width: 100px;
+  }
+}
 </style>

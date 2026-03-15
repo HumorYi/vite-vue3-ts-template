@@ -10,4 +10,4 @@ import { useRoute } from 'vue-router'
 const route = useRoute()
 </script>
 
-<style lang="sass" scoped></style>
+<style lang="scss" scoped></style>

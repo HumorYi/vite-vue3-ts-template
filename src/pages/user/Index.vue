@@ -7,7 +7,7 @@
     <RouterLinkPermission :to="{ name: RouteName.user.base }" text="基础用户" />
 
     <RouterLinkPermission
-      :to="{ name: RouteName.user.advance }"
+      :to="{ name: RouteName.user.advance.root }"
       text="高级用户"
     />
 
@@ -19,4 +19,4 @@
 import { RouteName } from '@/config/route'
 </script>
 
-<style lang="sass" scoped></style>
+<style lang="scss" scoped></style>

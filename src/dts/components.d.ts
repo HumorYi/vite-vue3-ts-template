@@ -8,7 +8,6 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    Permission: typeof import('./../components/common/RouterLink/Permission.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterLinkPermission: typeof import('./../components/RouterLink/Permission.vue')['default']
     RouterView: typeof import('vue-router')['RouterView']

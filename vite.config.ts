@@ -25,6 +25,7 @@ import Components from 'unplugin-vue-components/vite'
 
 /* 开发环境 S */
 import ViteRestart from 'vite-plugin-restart'
+import stylelint from 'vite-plugin-stylelint'
 import vueDevTools from 'vite-plugin-vue-devtools'
 /* 开发环境 E */
 
@@ -98,7 +99,13 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         '.env*'
       ]
     }),
-    vueDevTools()
+    vueDevTools(),
+    stylelint({
+      cache: false, // 关闭缓存（开发时实时更新）
+      fix: false, // 关闭自动修复（建议手动修复）
+      include: ['src/**/*.{css,scss,sass}'], // 只校验样式文件
+      exclude: ['node_modules/**']
+    })
   ]
 
   const prodPlugins: PluginOption[] = [

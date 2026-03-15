@@ -20,7 +20,22 @@ export default {
    * null  => 关闭该规则
    */
   rules: {
-    'value-keyword-case': null, // 在 css 中使用 v-bind，不报错
+    // ========== Vue 规则 ==========
+    'selector-pseudo-class-no-unknown': [
+      true,
+      {
+        ignorePseudoClasses: ['global', 'v-deep', 'deep']
+      }
+    ],
+
+    // ========== SCSS 规则 ==========
+    'scss/at-rule-no-unknown': true, // 禁止未知的 SCSS 指令
+    'scss/no-duplicate-dollar-variables': null, // 允许变量重复（不同文件）
+    'scss/dollar-variable-pattern': '^[a-z-]+$', // SCSS 变量名小写 + 连字符
+    'scss/dollar-variable-empty-line-before': null, // 允许 scss 变量前有空行
+
+    // ========== 基础规则 ==========
+    'value-keyword-case': null,
     'value-no-vendor-prefix': null, // 关闭 vendor-prefix(为了解决多行省略 -webkit-box)
     'no-empty-source': null, // 禁止空源码
     'no-descending-specificity': null, // 禁止在具有较高优先级的选择器后出现被其覆盖的较低优先级的选择器
@@ -28,13 +43,9 @@ export default {
     'rule-empty-line-before': null, // 要求或禁止在规则之前的空行 "always(规则之前必须始终有一个空行)"|"never(规则前绝不能有空行)"|"always-multi-line(多行规则之前必须始终有一个空行)"|"never-multi-line(多行规则之前绝不能有空行。)"
     'font-family-no-missing-generic-family-keyword': null, // 禁止在字体族名称列表中缺少通用字体族关键字
     'property-no-unknown': null, // 禁止未知的属性(true 为不允许)
-    'selector-class-pattern': null, // 强制选择器类名的格式
-    'selector-pseudo-class-no-unknown': [
-      true,
-      {
-        ignorePseudoClasses: ['global', 'v-deep', 'deep']
-      }
-    ],
+    'selector-class-pattern': null, // 关闭类名格式校验（CSS Modules 允许驼峰/下划线）
+
+    // ========== 属性排序（可选） ==========
     'order/properties-order': [
       'position',
       'top',
@@ -113,8 +124,6 @@ export default {
       'resize',
       'transition'
     ],
-    'scss/at-import-partial-extension': null, // 解决不能引入scss文件
-    'scss/dollar-variable-empty-line-before': null // 允许 scss 变量前有空行
   },
   ignoreFiles: [
     'node_modules/**',

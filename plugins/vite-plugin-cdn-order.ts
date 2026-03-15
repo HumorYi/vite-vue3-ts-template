@@ -82,7 +82,7 @@ export default function vitePluginCdnOrder(option: Option) {
     // 转换 index.html 中的标签，注入 onerror 逻辑
     transformIndexHtml(html: string) {
       return html.replace(
-        new RegExp(`<script.*?src="(./${assetsDir}/.*?\.js)"></script>`, 'g'),
+        new RegExp(`<script.*?src="(\\./${assetsDir}/.*?\\.js)"></script>`, 'g'),
         (match, entryUrl) => {
           if (!match) return match
 
