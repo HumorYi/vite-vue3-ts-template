@@ -21,9 +21,8 @@ import LoadingTimer from './loading/timer'
 
 import { reqRepeat, reqRepeatByRes } from './req-repeat'
 
-import { handleResDataCode, ResDataCode } from './res-data-code'
 import resDownload from './res-download'
-import { handleResErrorCode } from './res-error-code'
+import { handleResErrorCode } from './res-error-code-vue'
 import resTimeout from './res-timeout'
 
 import { addResCache, getResCacheData } from './res-cache'
@@ -95,59 +94,54 @@ function handleInterceptRes(instance: AxiosInstance, option?: ResOption) {
 async function handleReq<T>(
   instance: AxiosInstance,
   config: AxiosRequestConfig,
+  factoryOption: FactoryOption = {},
   apiOption: ApiOption = {}
 ) {
-  try {
-    const { download, cache, cacheTime, loadingTimerOption } = {
-      download: false,
-      cache: false,
-      cacheTime: 5 * 60 * 1000,
-      ...apiOption
-    }
-
-    if (cache) {
-      const data = getResCacheData(config, cacheTime)
-
-      if (data) {
-        if (download) {
-          resDownload(data)
-
-          return
-        }
-
-        return data
-      }
-    }
-
-    loadingTimer.start(loadingTimerOption)
-
-    reqRepeat(config, apiOption)
-
-    if (download) {
-      const res = await instance<BlobPart>(config)
-
-      resDownload(res)
-
-      if (cache) addResCache(config, res)
-
-      return
-    }
-
-    const { status, data } = await instance<ApiResult<T>>(config)
-
-    if (status !== 200) return
-
-    if (cache) addResCache(config, data)
-
-    // 前后端约定数据状态码，前端做出对应处理，例如：提示信息、再次确认
-    if (Object.values(ResDataCode).some(val => val === data.code)) {
-      return handleResDataCode(data)
-    }
-
-    return data
-  } catch (err) {
-    throw err
+  const { download, cache, cacheTime, loadingTimerOption } = {
+    download: false,
+    cache: false,
+    cacheTime: 5 * 60 * 1000,
+    ...factoryOption,
+    ...apiOption
   }
+
+  const { handleResData } = factoryOption?.instanceRes || {}
+
+  if (cache) {
+    const data = getResCacheData(config, cacheTime)
+
+    if (data) {
+      if (download) {
+        resDownload(data)
+
+        return
+      }
+
+      return data
+    }
+  }
+
+  loadingTimer.start(loadingTimerOption)
+
+  reqRepeat(config, apiOption)
+
+  if (download) {
+    const res = await instance<BlobPart>(config)
+
+    resDownload(res)
+
+    if (cache) addResCache(config, res)
+
+    return
+  }
+
+  const { status, data } = await instance<ApiResult<T>>(config)
+
+  if (status !== 200) return
+
+  if (cache) addResCache(config, data)
+
+  return handleResData ? handleResData(data) : data
 }
 
 function genMethod(
@@ -186,7 +180,9 @@ function genMethod(
       }
     }
 
-    const handle = () => handleReq<T>(instance, config, option)
+    function handle() {
+      return handleReq<T>(instance, config, factoryOption, apiOption)
+    }
 
     const reslut = option.fifo ? fifo()(handle, option.fifoDelay) : handle()
 
@@ -194,10 +190,10 @@ function genMethod(
   }
 }
 
-function factory<T>(instance: AxiosInstance, option: FactoryOption) {
-  handleInterceptReq(instance, option.instanceReq)
+function factory(instance: AxiosInstance, option?: FactoryOption) {
+  handleInterceptReq(instance, option?.instanceReq)
 
-  handleInterceptRes(instance, option.instanceRes)
+  handleInterceptRes(instance, option?.instanceRes)
 
   return {
     get: genMethod(instance, 'get', option),

@@ -1,6 +1,7 @@
 import axios from 'axios'
 import factory from './factory'
 import handleReqConfig from './factory/req-config'
+import { handleResDataCode } from './factory/res-data-code'
 
 const instance = axios.create({
   // 默认地址
@@ -12,5 +13,6 @@ const instance = axios.create({
 })
 
 export const { get, post, put, del } = factory(instance, {
-  instanceReq: { handleReqConfig }
+  instanceReq: { handleReqConfig },
+  instanceRes: { handleResData: handleResDataCode }
 })

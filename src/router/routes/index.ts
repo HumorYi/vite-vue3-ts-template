@@ -4,10 +4,10 @@ import auth from './auth'
 import base from './base'
 import error from './error'
 
-import { detectRepeatRouteNameOrPath } from '@/utils/route'
+import { detectRepeatRoute } from '@/utils/route'
 
 const routes: RouteRecordRaw[] = [...base, ...auth, ...error]
 
-detectRepeatRouteNameOrPath(routes)
+detectRepeatRoute(routes)
 
 export default routes

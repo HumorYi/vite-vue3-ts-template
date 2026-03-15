@@ -2,53 +2,17 @@
  * 为避免开发过程中路由 重名 / 重地址 等无意行为，对路由做一层检测封装
  * 后续关于路由的处理，调用此文件提供的方法
  */
-
-import { type RouteRecordRaw } from 'vue-router'
-
 import { ROUTER_PERMISSION_TYPE, RouterPermission } from '@/config/route'
 import permissionRoutes from '@/router/routes/permission'
+import {detectRepeatRouteVue, hasRoutePermissionVue} from './route-vue'
 
-// 检测是否有 重名 / 重地址 路由，抛出异常提示
-export function detectRepeatRouteNameOrPath(routes: RouteRecordRaw[]) {
-  const paths: string[] = []
-  const names: (string | symbol)[] = []
-
-  function recursiveRoutes(routes: RouteRecordRaw[], parentPath: string = '') {
-    for (const route of routes) {
-      const routePath =
-        parentPath +=
-        (route.path?.startsWith('/') ? '' : '/') +
-        (route.path ?? '')
-
-      if (route.path) {
-        if (paths.includes(routePath)) {
-          console.error(route)
-          throw new Error('有重复路由地址')
-        }
-
-        paths.push(routePath)
-      }
-
-      if (route.name) {
-        if (names.includes(route.name)) {
-          console.error(route)
-          throw new Error('有重复路由名称')
-        }
-
-        names.push(route.name)
-      }
-
-      if (route.children?.length) recursiveRoutes(route.children, routePath)
-    }
-  }
-
-  recursiveRoutes(routes)
-}
+export const detectRepeatRoute = detectRepeatRouteVue
+export const hasRoutePermission = hasRoutePermissionVue
 
 export function setRoutePermission(val: any) {
   switch (ROUTER_PERMISSION_TYPE) {
     case RouterPermission.DYNAMIC.valueOf():
-      setRoutePermissionByDynamic(val as RouteRecordRaw[])
+      setRoutePermissionByDynamic(val as Record<string, any>[])
       break
 
     case RouterPermission.ROLE.valueOf():
@@ -65,7 +29,7 @@ export function setRoutePermission(val: any) {
 }
 
 export function resetRoutePermission(
-  routes: RouteRecordRaw[] = permissionRoutes
+  routes: Record<string, any>[] = permissionRoutes
 ) {
   for (const route of routes) {
     setPermission(route, false)
@@ -74,11 +38,10 @@ export function resetRoutePermission(
   }
 }
 
-export function hasRoutePermission(name: string) {
-  return Boolean(findRouteByName(permissionRoutes, name)?.meta?.permission)
-}
-
-export function setRouteAuth(routes: RouteRecordRaw[], val: boolean = true) {
+export function setRouteAuth(
+  routes: Record<string, any>[],
+  val: boolean = true
+) {
   for (const route of routes) {
     route.meta ??= {}
 
@@ -97,8 +60,8 @@ export function setRouteAuth(routes: RouteRecordRaw[], val: boolean = true) {
  * 缺：用户登入登出需要反复 开启改变 权限
  */
 function setRoutePermissionByDynamic(
-  permissions: RouteRecordRaw[],
-  routes: RouteRecordRaw[] = permissionRoutes
+  permissions: Record<string, any>[],
+  routes: Record<string, any>[] = permissionRoutes
 ) {
   const _permissions = JSON.parse(JSON.stringify(permissions))
 
@@ -127,8 +90,8 @@ function setRoutePermissionByDynamic(
 
 function setRoutePermissionByRole(
   role: string,
-  parentRoute?: RouteRecordRaw,
-  routes: RouteRecordRaw[] = permissionRoutes
+  parentRoles?: string[],
+  routes: Record<string, any>[] = permissionRoutes
 ) {
   for (const route of routes) {
     /**
@@ -136,21 +99,19 @@ function setRoutePermissionByRole(
      * 否则如果上层路由配置角色，即指定角色才能访问；
      * 否则都没有配置角色，即所有角色都能访问；
      */
-    const roles = (route.meta?.roles || parentRoute?.meta?.roles) as string[]
+    const roles = route.meta?.roles || parentRoles
 
-    setPermission(route, !roles || roles.includes(role))
+    setPermission(route, !roles || roles?.includes(role))
 
     if (route.children?.length) {
-      setRoutePermissionByRole(
-        role,
-        route.meta?.roles ? route : parentRoute,
-        route.children
-      )
+      setRoutePermissionByRole(role, roles, route.children)
     }
   }
 }
 
-function setRoutePermissionByAuth(routes: RouteRecordRaw[] = permissionRoutes) {
+function setRoutePermissionByAuth(
+  routes: Record<string, any>[] = permissionRoutes
+) {
   for (const route of routes) {
     setPermission(route, true)
 
@@ -160,23 +121,8 @@ function setRoutePermissionByAuth(routes: RouteRecordRaw[] = permissionRoutes) {
   }
 }
 
-function setPermission(route: RouteRecordRaw, val: boolean) {
+function setPermission(route: Record<string, any>, val: boolean) {
   route.meta ??= {}
 
   route.meta.permission = val
-}
-
-function findRouteByName(
-  routes: RouteRecordRaw[],
-  name: string
-): RouteRecordRaw | undefined {
-  for (const route of routes) {
-    if (route?.name === name) return route
-
-    if (route.children?.length) {
-      const result = findRouteByName(route.children, name)
-
-      if (result) return result
-    }
-  }
 }

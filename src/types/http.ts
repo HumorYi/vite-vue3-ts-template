@@ -1,5 +1,4 @@
-import type { GenericAbortSignal, InternalAxiosRequestConfig } from 'axios'
-import type { ComponentInternalInstance } from 'vue'
+import type { InternalAxiosRequestConfig } from 'axios'
 
 export type ApiResult<T> = {
   success: boolean
@@ -31,6 +30,7 @@ export type ResOption = {
   timeoutRetryMax?: number
   // 超时重试递增毫秒，默认 1000 毫秒。例如默认超时为5000，重试1次为6000，重试2次为7000，
   timeoutRetryIncreaseMs?: number
+  handleResData?: (data: ApiResult<any>) => void
 }
 
 export type FactoryOption = FactoryAndApiOption & {
@@ -42,7 +42,7 @@ export type ApiOption = FactoryAndApiOption & {
   // 请求中断请控制器，用于 组件卸载后中断请求
   abortController?: AbortController
   // 组件实例，用于 组件卸载后禁止异步内容处理，如 定时器
-  componentInstance?: ComponentInternalInstance
+  componentInstance?: Record<string, any>
   // 单个请求超时
   timeout?: number
   // 是否开启文件下载

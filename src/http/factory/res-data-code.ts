@@ -1,3 +1,4 @@
+// 前后端约定数据状态码，前端做出对应处理，例如：提示信息、再次确认
 export enum ResDataCode {
   // 提示信息
   Tip = 1
@@ -12,5 +13,5 @@ export function handleResDataCode(data: Record<string, any>) {
     return
   }
 
-  console.error('未知响应状态码:', code)
+  return data
 }
