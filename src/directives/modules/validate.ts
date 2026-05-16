@@ -1,4 +1,3 @@
-import { useEventListener } from '@vueuse/core'
 import type { Directive } from 'vue'
 
 const validate: Directive = {

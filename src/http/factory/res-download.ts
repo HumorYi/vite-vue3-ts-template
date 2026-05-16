@@ -2,7 +2,7 @@ import type { AxiosResponse } from 'axios'
 
 export default function resDownload(res: AxiosResponse<BlobPart, any>) {
   const { headers, data } = res
-  const blob = new Blob([data], { type: headers['content-type'] })
+  const blob = new Blob([data], { type: headers['content-type'] as string | undefined })
   const matches = headers['content-disposition'].match(/filename=(.*)/)
   const filename = matches ? decodeURIComponent(matches[1]) : ''
   const URL = window.URL || window.webkitURL

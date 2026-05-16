@@ -1,6 +1,4 @@
 import router from '@/router'
-import errorRoutes from '@/router/routes/error'
-import { useUserStore } from '@/store/useUserStore'
 
 export enum ResErrorCode {
   // 未授权
@@ -14,19 +12,22 @@ export enum ResErrorCode {
 }
 
 export function handleResErrorCode(code: number) {
+  const authStore = useAuthStore()
+
   if (code === ResErrorCode.UNAUTHORIZED) {
-    useUserStore().toLogin()
+    authStore.toLogin()
 
     return
   }
 
-  const codePath = `/${code}`
+  if (code === ResErrorCode.FORBIDDEN) {
+    authStore.toForbidden()
 
-  if (errorRoutes.some(route => route.path === codePath)) {
-    router.push({
-      path: codePath,
-      query: { redirect: router.currentRoute.value.fullPath }
-    })
+    return
+  }
+
+  if (code === ResErrorCode.NOT_FOUND) {
+    authStore.toNotFound()
 
     return
   }

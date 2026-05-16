@@ -18,6 +18,9 @@ import {
 /* 通用环境 S */
 import vue from '@vitejs/plugin-vue'
 import autoprefixer from 'autoprefixer'
+import VueRouter from 'vue-router/vite'
+import { VueRouterAutoImports } from 'vue-router/unplugin'
+import Layouts from 'vite-plugin-vue-meta-layouts'
 import UnoCSS from 'unocss/vite'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
@@ -35,6 +38,7 @@ import compression from 'vite-plugin-compression'
 import { ViteImageOptimizer } from 'vite-plugin-image-optimizer'
 
 import vitePluginCdnOrder from './plugins/vite-plugin-cdn-order'
+import vitePluginReplaceCallerFilename from './plugins/vite-plugin-replace-caller-filename'
 /* 生产环境 E */
 
 /* PC 端 S */
@@ -73,10 +77,23 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
   })
 
   const plugins: PluginOption[] = [
+    VueRouter({
+      extendRoute(route) {
+        const lastGroups = []
+        const groups = (route.name || '').match(/\(([^)]+)\)/g) || []
+
+        groups.forEach(item => lastGroups.push(...item.slice(1, -1).split('_')))
+
+        route.addToMeta({ groups: lastGroups })
+      },
+      dts: 'src/dts/typed-router.d.ts'
+    }),
+    Layouts(),
     vue(),
     AutoImport({
       include: [/\.[tj]sx?$/, /\.vue$/, /\.vue\?vue/, /\.md$/],
-      imports: ['vue'], // 暂定只自动导入 vue，避免导入其它的导致混乱
+      dirs: ['src/composables/**', 'src/stores/**'],
+      imports: ['vue', 'pinia', '@vueuse/core', VueRouterAutoImports],
       dts: 'src/dts/auto-imports.d.ts',
       resolvers: [ElementPlusResolver(), AntDesignVueResolver()]
     }),
@@ -92,12 +109,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
 
   const devPlugins: PluginOption[] = [
     ViteRestart({
-      restart: [
-        'vite.config.[jt]s',
-        'uno.config.[jt]s',
-        'src/uno/**/*.ts',
-        '.env*'
-      ]
+      restart: ['vite.config.[jt]s', 'uno.config.[jt]s', 'uno/**/*.ts', '.env*']
     }),
     vueDevTools(),
     stylelint({
@@ -109,6 +121,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
   ]
 
   const prodPlugins: PluginOption[] = [
+    vitePluginReplaceCallerFilename(),
     vitePluginCdnOrder({
       assetsDir,
       cdnUrl: 'https://unpkg.com/',
@@ -206,9 +219,6 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
           rewrite: (path: string) =>
             path.replace(new RegExp('^' + env.VITE_APP_API_BASE), '')
         }
-      },
-      hmr: {
-        overlay: false // 关闭热更新错误浮层（避免干扰开发）
       }
     },
     css: {
@@ -228,8 +238,8 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       preprocessorOptions: {
         scss: {
           additionalData: `
-            @use "@/assets/styles/variables.scss" as variables;
-            @use "@/assets/styles/mixins/index.scss" as mixins;
+            @use "@/assets/styles/variables" as vars;
+            @use "@/assets/styles/mixins" as mixins;
           `
         }
       },

@@ -35,6 +35,7 @@ export default {
     'scss/dollar-variable-empty-line-before': null, // 允许 scss 变量前有空行
 
     // ========== 基础规则 ==========
+    'color-function-notation': null, // 关闭现代颜色语法校验
     'value-keyword-case': null,
     'value-no-vendor-prefix': null, // 关闭 vendor-prefix(为了解决多行省略 -webkit-box)
     'no-empty-source': null, // 禁止空源码

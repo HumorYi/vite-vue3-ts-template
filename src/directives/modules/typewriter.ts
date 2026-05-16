@@ -1,4 +1,3 @@
-import { useInterval, useTimeout } from '@vueuse/core'
 import type { Directive } from 'vue'
 
 const blinkAnimationStyle = `
@@ -67,13 +66,12 @@ const typewriter: Directive = {
         }
       })
 
-
       const { start } = useTimeout(5000, {
         immediate: false,
         controls: true,
         callback: () => (typeof cb === 'function' ? cb() : run(elem, txt))
       })
-      
+
       // 4.删除完成之后，每隔0.5s添加一个字符，直到添加完毕，这个是一个轮回。
       const { pause: pause2, resume: resume2 } = useInterval(500, {
         immediate: false,

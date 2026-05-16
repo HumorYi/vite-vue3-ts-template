@@ -1,0 +1,1 @@
+export type FEATURE_TYPE = 'create' | 'del' | 'update' | 'view'

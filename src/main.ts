@@ -2,6 +2,7 @@ import { createPinia } from 'pinia'
 import { createPersistedState } from 'pinia-plugin-persistedstate'
 import { createApp } from 'vue'
 import VueLazyLoad from 'vue3-lazyload'
+import i18n from './i18n'
 
 import '@unocss/reset/normalize.css'
 import 'virtual:uno.css'
@@ -19,7 +20,10 @@ import loadingImg from '@/assets/images/lazyload/loading.gif'
 const app = createApp(App)
 
 const pinia = createPinia().use(
-  createPersistedState({ key: id => `__persisted__${id}` })
+  createPersistedState({
+    key: id => `__persisted__${id}`,
+    storage: localStorage
+  })
 )
 
 initEnvs()
@@ -28,6 +32,7 @@ app
   .use(VueLazyLoad, { loading: loadingImg, error: errorImg })
   .use(pinia)
   .use(router)
+  .use(i18n)
   .use(directives)
   .mount('#app')
 

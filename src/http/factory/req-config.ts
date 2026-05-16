@@ -1,5 +1,6 @@
 import type { InternalAxiosRequestConfig } from 'axios'
 import Qs from 'qs'
+import i18n from '@/i18n'
 
 export default function handleReqConfig(config: InternalAxiosRequestConfig) {
   const { method, headers, data } = config
@@ -20,4 +21,6 @@ export default function handleReqConfig(config: InternalAxiosRequestConfig) {
       headers['Content-Type'] = 'multipart/form-data'
     }
   }
+
+  headers['Current-Language'] = i18n.global.locale.value
 }

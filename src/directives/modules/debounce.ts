@@ -1,4 +1,3 @@
-import { useEventListener } from '@vueuse/core'
 import { debounce as lodashDebounce } from 'lodash-es'
 import type { Directive } from 'vue'
 

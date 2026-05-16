@@ -1,19 +1,12 @@
-import { get, post } from '@/http'
-import type { loginRes, User } from '@/types/api/user'
-import type { ApiOption } from '@/types/http'
+import type { UserRes } from '@/types/api/user'
+import { getPreUrl } from '@/utils/replace-caller-filename'
 
-export async function apiLogin(params: Record<string, any>) {
-  return await post<loginRes>('/login', params)
+const { get, post } = useApi({ preUrl: getPreUrl() })
+
+export async function getUser(params?: Record<string, any>) {
+  return await get<UserRes>('/base-info', params)
 }
 
-export async function apiLogout() {
-  return await get('/logout')
-}
-
-export async function apiGetUser(params?: Record<string, any>) {
-  return await get<User>('/user', params, { cache: true })
-}
-
-export async function apiSetUser(params: Record<string, any>, option?: ApiOption) {
-  return await post<Partial<User>>('/user', params, option)
+export async function setUser(params: Record<string, any>) {
+  return await post<Partial<UserRes>>('/base-info', params)
 }

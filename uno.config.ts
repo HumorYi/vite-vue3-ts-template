@@ -1,5 +1,3 @@
-// import { preset } from './uno/preset'
-
 /**
  * 样式规则互动工具
  *    https://unocss.dev/interactive/
@@ -19,8 +17,8 @@ import {
   transformerVariantGroup
 } from 'unocss'
 
-import customPresets from './src/uno/presets'
-import customShortcuts from './src/uno/shortcuts'
+import customPresets from './uno/presets'
+import customShortcuts from './uno/shortcuts'
 
 export default defineConfig({
   content: {

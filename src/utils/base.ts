@@ -1,5 +1,5 @@
 // First In, First Out
-export function fifo () {
+export function fifo() {
   let counterSize = 0
   let lastCounter = 0
 

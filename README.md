@@ -37,11 +37,7 @@
     - 文件下载
     - 请求中断请控制器，用于 组件卸载后中断请求
     - 组件实例，用于 组件卸载后禁止异步内容处理，如 定时器
-    - 开启 loading
-      - 通过定时器来设置 loading 延迟时间，避免用户一点击就弹出吓一跳，提升用户体验
-      - 通过计数器控制多个请求只开启一个 loading，避免重复开启，导致闪烁
-      - 内部提供了几种 loading 类型，如：带蒙板的、不带蒙板的、gif 图 等
-      - 可根据选项传递对应配置，例如：使用不同类型 loading、是否开启 loading
+    - loadingKey 开启指定 loading，适配不同页面 UI
     - 先进先出，适用于一些任务类场景（批量请求按顺序返回）
       - 先访问的请求先返回响应处理，就算后请求先返回响应处理，也要等前面请求响应才返回
       - 实现原理，使用 Promise 截住请求、计数器 控制顺序、定时器 轮询检测
@@ -128,6 +124,7 @@
 ├── plugins                                   插件
 │   ├── vite-plugin-cdn-order                 自写 cdn 插件
 ├── public                                    静态资源
+│   ├── fonts                                 字体文件
 ├── README.md                                 先看此文件，便于了解项目设计思路
 ├── src                                       源码
 │   ├── api                                   api 请求
@@ -161,7 +158,6 @@
 │   │   │── RouterLinkPermission.vue          权限 router-link，有权限则显示
 │   │   └── modules                           模块组件
 │   ├── composables                           composition 函数
-│   │   └── useApiOption                      api signal 钩子，组件卸载中断请求
 │   ├── config                                自定义配置
 │   │   ├── router.ts
 │   │   └── user.ts
@@ -188,8 +184,8 @@
 │   │   │   │   ├── counter.ts                计数器
 │   │   │   │   ├── loading.ts                loading 处理
 │   │   │   │   └── timer.ts                  定时器
+│   │   │   ├── req-cancel.ts                 请求取消
 │   │   │   ├── req-config.ts                 请求配置，请求前处理配置，例如：根据不同请求方法转换参数
-│   │   │   ├── req-repeat.ts                 请求重复
 │   │   │   ├── res-error-code.ts             响应状态码处理（http 状态码）
 │   │   │   ├── res-data-code.ts              数据状态码处理（api 数据 状态码）
 │   │   │   ├── res-download.ts               响应文件下载
@@ -225,23 +221,13 @@
 │   │       ├── error.ts                      错误路由
 │   │       ├── index.ts                      路由表入口
 │   │       └── permission.ts                 权限路由，需要权限
-│   ├── store                                 pinia store
+│   ├── stores                                pinia store
 │   │   └── useUserStore.ts                   用户 store
 │   ├── types                                 类型定义
 │   │   ├── api.ts                            同 api 目录
 │   │       └── user.ts
 │   │   ├── http.ts
 │   │   └── json.ts
-│   ├── uno                                   自定义 uno 配置
-│   │   ├── presets                           自定义 预设
-│   │   │   ├── bg.ts
-│   │   │   ├── color.ts
-│   │   │   └── index.ts
-│   │   └── shortcuts                         自定义 快捷类
-│   │       ├── box.ts
-│   │       ├── flex.ts
-│   │       ├── index.ts
-│   │       └── position.ts
 │   ├── utils                                 工具库
 │   │   ├── base.ts
 │   │   ├── dom.ts
@@ -252,6 +238,16 @@
 │   │   ├── file.ts
 │   │   ├── resource.ts
 │   │   └── route.ts
+│── uno                                       自定义 uno 配置
+│   ├── presets                               自定义 预设
+│   │   ├── bg.ts
+│   │   ├── color.ts
+│   │   └── index.ts
+│   └── shortcuts                             自定义 快捷类
+│       ├── box.ts
+│       ├── flex.ts
+│       ├── index.ts
+│       └── position.ts
 ├── stylelint.config.js                       stylelint 配置
 ├── tsconfig.app.json                         vite 在 app 环境中的 ts 规则
 ├── tsconfig.json                             ts 配置

@@ -8,8 +8,11 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    BackHome: typeof import('./../components/BackHome.vue')['default']
+    CustomLoading: typeof import('./../components/CustomLoading.vue')['default']
+    Default: typeof import('./../layouts/default.vue')['default']
+    LanguageSwitcher: typeof import('./../components/LanguageSwitcher.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
-    RouterLinkPermission: typeof import('./../components/RouterLink/Permission.vue')['default']
     RouterView: typeof import('vue-router')['RouterView']
   }
 }

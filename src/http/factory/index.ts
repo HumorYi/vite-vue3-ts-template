@@ -15,19 +15,14 @@ import type {
 } from '@/types/http'
 
 import { fifo } from '@/utils/base'
-import { getToken } from '@/utils/token'
 
-import LoadingTimer from './loading/timer'
-
-import { reqRepeat, reqRepeatByRes } from './req-repeat'
+import { reqRepeat, reqRepeatByRes } from './req-cancel'
 
 import resDownload from './res-download'
 import { handleResErrorCode } from './res-error-code-vue'
 import resTimeout from './res-timeout'
 
 import { addResCache, getResCacheData } from './res-cache'
-
-const loadingTimer = new LoadingTimer()
 
 function handleInterceptReq(instance: AxiosInstance, option?: ReqOption) {
   instance.interceptors.request.use(
@@ -42,8 +37,6 @@ function handleInterceptReq(instance: AxiosInstance, option?: ReqOption) {
 
       reqRepeatByRes(err.config)
 
-      loadingTimer.stop()
-
       return Promise.reject(err)
     }
   )
@@ -53,8 +46,6 @@ function handleInterceptRes(instance: AxiosInstance, option?: ResOption) {
   instance.interceptors.response.use(
     (response: AxiosResponse) => {
       reqRepeatByRes(response.config)
-
-      loadingTimer.stop()
 
       return response
     },
@@ -68,16 +59,14 @@ function handleInterceptRes(instance: AxiosInstance, option?: ResOption) {
           err,
           option?.timeoutRetryMax,
           option?.timeoutRetryIncreaseMs
-        ).catch(err => {
-          loadingTimer.stop()
+        ).catch(error => {
+          if (err.config) reqRepeatByRes(err.config)
 
-          return Promise.reject(err)
+          return Promise.reject(error)
         })
       }
 
       if (err.config) reqRepeatByRes(err.config)
-
-      loadingTimer.stop()
 
       if (!window.navigator.onLine) {
         // console.err('网络连接失败')
@@ -97,15 +86,13 @@ async function handleReq<T>(
   factoryOption: FactoryOption = {},
   apiOption: ApiOption = {}
 ) {
-  const { download, cache, cacheTime, loadingTimerOption } = {
+  const { download, cache, cacheTime } = {
     download: false,
     cache: false,
     cacheTime: 5 * 60 * 1000,
     ...factoryOption,
     ...apiOption
   }
-
-  const { handleResData } = factoryOption?.instanceRes || {}
 
   if (cache) {
     const data = getResCacheData(config, cacheTime)
@@ -120,8 +107,6 @@ async function handleReq<T>(
       return data
     }
   }
-
-  loadingTimer.start(loadingTimerOption)
 
   reqRepeat(config, apiOption)
 
@@ -141,7 +126,7 @@ async function handleReq<T>(
 
   if (cache) addResCache(config, data)
 
-  return handleResData ? handleResData(data) : data
+  return factoryOption?.instanceRes?.handleResData?.(data) || data
 }
 
 function genMethod(
@@ -154,28 +139,32 @@ function genMethod(
     params: Record<string, any> = {},
     apiOption: ApiOption = {}
   ) => {
-    const option = { ...factoryOption, ...apiOption }
+    const option = { preUrl: '', ...factoryOption, ...apiOption }
+    const config: AxiosRequestConfig = {
+      url: option.preUrl + url,
+      method,
+      headers: option.headers || {}
+    }
+    const token = useAuthStore().getToken()
+    const lowerMethod = method.toLowerCase()
 
-    const token = getToken()
-    const config: AxiosRequestConfig = { url, method }
-
-    if (['get', 'del'].includes(method)) {
+    if (['get', 'del'].includes(lowerMethod)) {
       config.params = params
-    } else if (['post', 'put'].includes(method)) {
+    } else if (['post', 'put'].includes(lowerMethod)) {
       config.data = params
     }
 
-    if (apiOption.timeout) {
-      config.timeout = apiOption.timeout
+    if (option.timeout) {
+      config.timeout = option.timeout
     }
 
-    if (apiOption.download) {
+    if (option.download) {
       config.responseType = 'arraybuffer'
     }
 
     if (option.token && token) {
       config.headers = {
-        ...(config.headers || {}),
+        ...config.headers,
         Authorization: `Bearer ${token}`
       }
     }
@@ -184,9 +173,9 @@ function genMethod(
       return handleReq<T>(instance, config, factoryOption, apiOption)
     }
 
-    const reslut = option.fifo ? fifo()(handle, option.fifoDelay) : handle()
+    const result = option.fifo ? fifo()(handle, option.fifoDelay) : handle()
 
-    return reslut as unknown as ApiResult<T>
+    return result as unknown as ApiResult<T>
   }
 }
 

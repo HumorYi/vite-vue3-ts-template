@@ -1,11 +1,17 @@
-import type { JsonObject } from '../json'
-
-export type loginRes = {
-  token: string
+export interface UserRoute {
+  path: string
+  children?: UserRoute[]
 }
 
-export interface User extends JsonObject {
+export interface UserRes {
   id: number
   name: string
-  role: string
+  routes: UserRoute[]
+  role?: string
+  feature ?: Record<string, {
+    create ?: boolean
+    del ?: boolean
+    update ?: boolean
+    view ?: boolean
+  }>
 }

@@ -1,4 +1,3 @@
-import { useEventListener } from '@vueuse/core'
 import { clamp } from 'lodash-es'
 
 export function draggable(el: HTMLElement, container?: HTMLElement) {

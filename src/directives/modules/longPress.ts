@@ -1,5 +1,4 @@
 import { isMouseLeft } from '@/utils/dom'
-import { useEventListener, useTimeout } from '@vueuse/core'
 import type { Directive } from 'vue'
 
 const longPress: Directive = {

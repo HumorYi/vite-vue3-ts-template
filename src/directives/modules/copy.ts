@@ -1,7 +1,6 @@
 // v-copy="data"  默认复制成功后弹出提示
 // v-copy:silence="data" 不显示复制成功后的提示
 
-import { useClipboard, useEventListener } from '@vueuse/core'
 import type { Directive } from 'vue'
 
 interface ElType extends HTMLElement {

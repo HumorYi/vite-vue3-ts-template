@@ -1,5 +1,5 @@
 import type { AxiosRequestConfig } from 'axios'
-import { getReqKey } from './req-repeat'
+import { getReqKey } from './req-cancel'
 
 const resCache = new Map<string, { data: any; time: number }>()
 

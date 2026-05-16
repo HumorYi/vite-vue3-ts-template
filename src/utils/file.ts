@@ -10,9 +10,9 @@ export enum FileOptionType {
 export type FileOption = {
   dir: string
   excludes?: string[]
-  excludeSuffixs?: string[]
+  excludeSuffixList?: string[]
   includes?: string[]
-  includeSuffixs?: string[]
+  includeList?: string[]
   type?: FileOptionType
 }
 
@@ -35,18 +35,18 @@ export function getFileNameWithoutExt(path: string) {
 export function getFilePaths({
   dir,
   excludes,
-  excludeSuffixs,
+  excludeSuffixList,
   includes,
-  includeSuffixs,
+  includeList,
   type = FileOptionType.FILEPATH
 }: FileOption) {
   return readdirRecursive(dir)
     .filter(
       filePath =>
         !excludes?.includes(filePath) ||
-        !excludeSuffixs?.some(suffix => getFileExt(filePath) === suffix) ||
+        !excludeSuffixList?.some(suffix => getFileExt(filePath) === suffix) ||
         includes?.includes(filePath) ||
-        includeSuffixs?.some(suffix => getFileExt(filePath) === suffix)
+        includeList?.some(suffix => getFileExt(filePath) === suffix)
     )
     .map(filePath => {
       switch (type) {
